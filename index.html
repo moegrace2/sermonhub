@@ -259,6 +259,222 @@
     .empty-state-icon { font-size: 38px; opacity: 0.3; margin-bottom: 12px; }
     .empty-state p { font-size: 14px; color: var(--text-secondary); margin-bottom: 16px; }
 
+    /* ---- PREACHING MODE ---- */
+    #preaching-mode {
+      display: none; position: fixed; inset: 0; z-index: 500;
+      background: #0f1117; color: #f0efe8;
+      flex-direction: column; overflow: hidden;
+    }
+    #preaching-mode.active { display: flex; }
+    .preach-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 24px; border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+    .preach-title { font-family: var(--font-serif); font-size: 18px; color: #f0efe8; }
+    .preach-timer { font-size: 28px; font-weight: 600; font-variant-numeric: tabular-nums; color: #f0efe8; letter-spacing: 0.04em; }
+    /* Split pane layout */
+    .preach-split { display: flex; flex: 1; overflow: hidden; }
+    .preach-left {
+      width: 28%; flex-shrink: 0;
+      border-right: 1px solid rgba(255,255,255,0.08);
+      overflow-y: auto; padding: 28px 20px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .preach-right { flex: 1; overflow-y: auto; padding: 36px 52px; }
+    .preach-section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(240,239,232,0.4); margin-bottom: 10px; }
+    /* Scripture cards in left pane — clickable */
+    .preach-scripture {
+      background: rgba(24,95,165,0.18); border: 1px solid rgba(74,158,232,0.25);
+      border-radius: 8px; padding: 12px 14px;
+      font-size: 15px; color: #A8CFEE; line-height: 1.5;
+      cursor: pointer; transition: background 0.15s, border-color 0.15s;
+      user-select: none;
+    }
+    .preach-scripture:hover { background: rgba(24,95,165,0.32); border-color: rgba(74,158,232,0.5); }
+    .preach-scripture:active { transform: scale(0.98); }
+    /* Scripture popup overlay */
+    #preach-scripture-popup {
+      display: none; position: fixed; inset: 0; z-index: 700;
+      background: rgba(0,0,0,0.72); align-items: center; justify-content: center; padding: 40px;
+    }
+    #preach-scripture-popup.active { display: flex; }
+    .preach-popup-card {
+      background: #1a2035; border: 1px solid rgba(74,158,232,0.35);
+      border-radius: 16px; padding: 36px 44px 36px 44px; max-width: 720px; width: 100%;
+      max-height: 80vh; display: flex; flex-direction: column; position: relative;
+    }
+    .preach-popup-close {
+      position: absolute; top: 16px; right: 20px;
+      background: none; border: none; color: rgba(200,227,248,0.4);
+      font-size: 24px; cursor: pointer; line-height: 1;
+    }
+    .preach-popup-close:hover { color: #C8E3F8; }
+    .preach-popup-ref { font-size: 12px; font-weight: 600; color: rgba(168,207,238,0.5); margin-bottom: 18px; font-family: var(--font-body); letter-spacing: 0.09em; text-transform: uppercase; flex-shrink: 0; padding-right: 30px; }
+    #preach-popup-text { font-family: var(--font-serif); font-size: 21px; color: #C8E3F8; line-height: 1.9; overflow-y: auto; flex: 1; }
+    #preach-popup-text .verse-num { font-size: 12px; color: rgba(168,207,238,0.4); vertical-align: super; margin-right: 2px; font-family: var(--font-body); font-weight: 700; }
+    .loading-verse { color: rgba(168,207,238,0.4); font-size: 17px; font-style: italic; }
+    .error-verse { color: rgba(220,120,120,0.8); font-size: 16px; font-style: italic; }
+    /* Main content pane */
+    .preach-outline { font-size: 26px; line-height: 1.8; color: #f0efe8; white-space: pre-wrap; margin-bottom: 32px; }
+    .preach-notes { font-size: 20px; line-height: 1.8; color: rgba(240,239,232,0.72); white-space: pre-wrap; }
+    .preach-highlight { background: rgba(239,159,39,0.22); border-left: 3px solid #EF9F27; border-radius: 0 6px 6px 0; padding: 12px 18px; font-size: 24px; font-family: var(--font-serif); color: #F7C875; margin-bottom: 10px; line-height: 1.6; }
+    .preach-controls { display: flex; gap: 10px; align-items: center; }
+    .preach-btn { background: rgba(255,255,255,0.1); border: none; color: #f0efe8; padding: 7px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; font-family: var(--font-body); }
+    .preach-btn:hover { background: rgba(255,255,255,0.18); }
+    .preach-btn.danger { background: rgba(163,45,45,0.3); }
+    .preach-btn.danger:hover { background: rgba(163,45,45,0.5); }
+
+    /* ---- FOCUSED SECTION POPUP ---- */
+    #preach-focus-popup {
+      display: none; position: fixed; inset: 0; z-index: 610;
+      background: rgba(0,0,0,0.85); align-items: center; justify-content: center; padding: 32px;
+    }
+    #preach-focus-popup.active { display: flex; }
+    .focus-popup-card {
+      background: #111827; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px; width: 100%; max-width: 860px;
+      max-height: 88vh; display: flex; flex-direction: column; position: relative;
+    }
+    .focus-popup-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 24px; border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0;
+    }
+    .focus-popup-nav { display: flex; align-items: center; gap: 8px; }
+    .focus-nav-btn {
+      background: rgba(255,255,255,0.08); border: none; color: #f0efe8;
+      padding: 6px 14px; border-radius: 6px; font-size: 13px; cursor: pointer;
+      font-family: var(--font-body); transition: background 0.15s;
+    }
+    .focus-nav-btn:hover { background: rgba(255,255,255,0.16); }
+    .focus-nav-btn:disabled { opacity: 0.22; cursor: default; }
+    .focus-popup-counter { font-size: 12px; color: rgba(240,239,232,0.3); min-width: 52px; text-align: center; }
+    .focus-popup-close { background: none; border: none; color: rgba(240,239,232,0.35); font-size: 22px; cursor: pointer; line-height: 1; }
+    .focus-popup-close:hover { color: #f0efe8; }
+    .focus-popup-body { padding: 32px 40px; overflow-y: auto; flex: 1; }
+    .focus-section-type { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(240,239,232,0.28); margin-bottom: 10px; }
+    .focus-point-title { font-size: 34px; font-weight: 700; color: #f0efe8; line-height: 1.25; margin-bottom: 28px; font-family: var(--font-serif); }
+    .focus-intro-text { font-size: 24px; color: #f0efe8; line-height: 1.8; white-space: pre-wrap; }
+    .focus-topic-row { display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px; padding-left: 4px; }
+    .focus-topic-num { font-size: 20px; font-weight: 700; color: rgba(74,158,232,0.5); min-width: 26px; }
+    .focus-topic-text { font-size: 22px; color: #f0efe8; line-height: 1.5; }
+    .focus-ref-chip { display: inline-block; margin-left: 10px; font-size: 13px; color: #4A9EE8; cursor: pointer; background: rgba(24,95,165,0.22); padding: 2px 10px; border-radius: 4px; vertical-align: middle; }
+    .focus-ref-chip:hover { background: rgba(24,95,165,0.38); }
+    .focus-subtopic-row { display: flex; align-items: baseline; gap: 10px; margin-top: 6px; padding-left: 40px; }
+    .focus-subtopic-dash { font-size: 16px; color: rgba(240,239,232,0.22); min-width: 16px; }
+    .focus-subtopic-text { font-size: 19px; color: rgba(240,239,232,0.62); line-height: 1.5; }
+    .focus-quotes-divider { border: none; border-top: 1px solid rgba(255,255,255,0.07); margin: 24px 0; }
+    .focus-quote-block { background: rgba(239,159,39,0.14); border-left: 3px solid #EF9F27; border-radius: 0 6px 6px 0; padding: 12px 18px; font-size: 21px; font-family: var(--font-serif); color: #F7C875; margin-bottom: 10px; line-height: 1.6; }
+    /* Left pane nav buttons */
+    .preach-nav-btn {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      border-radius: 8px; cursor: pointer; border: 1px solid rgba(255,255,255,0.07);
+      background: transparent; color: rgba(240,239,232,0.6); font-size: 13px;
+      font-family: var(--font-body); text-align: left; width: 100%;
+      transition: background 0.12s, border-color 0.12s; margin-bottom: 6px; line-height: 1.3;
+    }
+    .preach-nav-btn:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.14); color: #f0efe8; }
+    .preach-nav-btn.focused { background: rgba(74,158,232,0.14); border-color: rgba(74,158,232,0.32); color: #f0efe8; }
+    .preach-nav-icon { font-size: 11px; opacity: 0.35; flex-shrink: 0; }
+
+    /* ---- TRANSLATION SELECTOR IN PREACHING MODE ---- */
+    .preach-translation-bar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 24px; background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0;
+      font-size: 12px; color: rgba(240,239,232,0.5);
+    }
+    .preach-translation-bar select {
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+      color: #f0efe8; border-radius: 6px; padding: 4px 10px;
+      font-size: 12px; font-family: var(--font-body); cursor: pointer; outline: none;
+    }
+    .preach-translation-bar select:focus { border-color: rgba(74,158,232,0.5); }
+
+    /* ---- WHAT / WHY / HOW FIELDS ---- */
+    .wwh-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 4px; }
+    .wwh-block { background: var(--sidebar-bg); border-radius: var(--radius); padding: 10px 12px; border: 0.5px solid var(--border); }
+    .wwh-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+    .wwh-label.what { color: #185FA5; }
+    .wwh-label.why  { color: #8B3A8B; }
+    .wwh-label.how  { color: #2E7D32; }
+
+    /* ---- STRUCTURED OUTLINE ---- */
+    .outline-section { border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 4px; }
+    .outline-section-header { background: var(--sidebar-bg); padding: 8px 14px; font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-secondary); }
+    .outline-section-body { padding: 10px 12px; }
+    /* Main point card */
+    .mp-card { border: 0.5px solid var(--border-strong); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; }
+    .mp-card-header { background: var(--primary-light); padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+    .mp-letter { font-size: 13px; font-weight: 700; color: var(--primary); min-width: 22px; flex-shrink: 0; }
+    .mp-card-header input { flex: 1; border: none; background: transparent; font-size: 14px; font-weight: 500; color: var(--text-primary); font-family: var(--font-body); outline: none; }
+    .mp-card-header input::placeholder { color: var(--text-secondary); font-weight: 400; }
+    .mp-remove-btn { background: none; border: none; color: var(--text-secondary); font-size: 18px; cursor: pointer; line-height: 1; padding: 0 2px; flex-shrink: 0; }
+    .mp-remove-btn:hover { color: #A32D2D; }
+    .mp-card-body { padding: 10px 14px; }
+    /* Topics */
+    .topic-row { margin-bottom: 8px; }
+    .topic-inputs { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 4px; }
+    .topic-num { font-size: 12px; font-weight: 600; color: var(--primary); padding-top: 10px; min-width: 18px; flex-shrink: 0; }
+    .topic-fields { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .topic-ref-row { display: flex; gap: 6px; align-items: center; }
+    .topic-ref-input { font-size: 12px; color: var(--primary); width: 160px; padding: 5px 8px; }
+    .topic-ref-btn { background: none; border: none; color: var(--primary); font-size: 12px; cursor: pointer; padding: 4px 6px; border-radius: 4px; white-space: nowrap; opacity: 0.7; }
+    .topic-ref-btn:hover { opacity: 1; background: var(--primary-light); }
+    .topic-remove-btn { background: none; border: none; color: var(--text-secondary); font-size: 15px; cursor: pointer; padding: 4px; line-height: 1; flex-shrink: 0; margin-top: 6px; }
+    .topic-remove-btn:hover { color: #A32D2D; }
+    /* Subtopics */
+    .subtopics-container { padding-left: 24px; margin-top: 4px; }
+    .subtopic-row { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 4px; }
+    .subtopic-dash { font-size: 13px; color: var(--text-secondary); padding-top: 9px; min-width: 14px; flex-shrink: 0; }
+    .subtopic-fields { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+    .subtopic-ref-row { display: flex; gap: 6px; align-items: center; }
+    .subtopic-ref-input { font-size: 11px; color: var(--primary); width: 150px; padding: 4px 8px; }
+    .subtopic-remove-btn { background: none; border: none; color: var(--text-secondary); font-size: 14px; cursor: pointer; padding: 4px; line-height: 1; flex-shrink: 0; margin-top: 4px; }
+    .subtopic-remove-btn:hover { color: #A32D2D; }
+    .add-subtopic-btn { font-size: 11px; color: var(--text-secondary); background: none; border: none; cursor: pointer; padding: 3px 0; display: block; }
+    .add-subtopic-btn:hover { color: var(--primary); }
+    .add-topic-btn { font-size: 12px; width: 100%; margin-top: 6px; }
+
+    /* ---- SERMON CHECKLIST ---- */
+    .checklist-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+    .checklist-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: var(--radius); border: 0.5px solid var(--border-strong); cursor: pointer; user-select: none; transition: background 0.12s; }
+    .checklist-item:hover { background: var(--sidebar-bg); }
+    .checklist-item.done { background: #EAF3DE; border-color: rgba(59,109,17,0.2); }
+    .checklist-item.done .check-label { color: #3B6D11; text-decoration: line-through; opacity: 0.7; }
+    .check-box { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--border-strong); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .checklist-item.done .check-box { background: #639922; border-color: #639922; color: #fff; font-size: 10px; }
+    .check-label { font-size: 13px; color: var(--text-primary); }
+
+    /* ---- KEY QUOTES ---- */
+    .quote-block { background: #FFFBF0; border-left: 3px solid #EF9F27; border-radius: 0 var(--radius) var(--radius) 0; padding: 10px 14px; margin-bottom: 8px; font-family: var(--font-serif); font-size: 15px; color: #633806; line-height: 1.6; position: relative; }
+    .quote-remove { position: absolute; top: 6px; right: 8px; background: none; border: none; cursor: pointer; color: rgba(99,56,6,0.4); font-size: 16px; line-height: 1; }
+    .quote-remove:hover { color: #A32D2D; }
+
+    /* ---- PRINT STYLES ---- */
+    @media print {
+      #app, #auth-screen, #quick-btn, #toast, #modal-overlay,
+      #preaching-mode, #preach-focus-popup, #preach-scripture-popup { display: none !important; }
+      #print-view { display: block !important; }
+      body { overflow: visible; background: #fff; margin: 0; }
+      @page { margin: 0.85in; }
+      .print-point-block { page-break-inside: avoid; break-inside: avoid; page-break-after: auto; break-after: auto; }
+      .print-page-1 { page-break-after: always; break-after: always; }
+      .print-content-pages { page-break-before: avoid; break-before: avoid; }
+    }
+    #print-view {
+      display: none; font-family: var(--font-body); color: #1A1A2E; max-width: 780px; margin: 0 auto;
+    }
+    .print-page-1 { padding: 48px 56px 56px; }
+    .print-content-pages { padding: 48px 56px; }
+    .print-sermon-title { font-family: var(--font-serif); font-size: 32px; font-weight: 600; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 2px solid #1A1A2E; }
+    .print-section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #66667A; margin-bottom: 10px; margin-top: 28px; }
+    .print-scripture-block { background: #E6F1FB; border-left: 3px solid #185FA5; border-radius: 0 6px 6px 0; padding: 8px 14px; font-size: 14px; color: #0C447C; margin-bottom: 6px; }
+    .print-content { font-size: 15px; line-height: 1.9; white-space: pre-wrap; }
+    .print-quote { border-left: 3px solid #EF9F27; padding: 8px 14px; font-family: var(--font-serif); font-size: 15px; color: #633806; margin-bottom: 8px; page-break-inside: avoid; break-inside: avoid; }
+    .print-point-block { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+    .print-point-block:last-child { border-bottom: none; }
+
     /* ---- YOUTUBE LINK ---- */
     .yt-badge {
       display: inline-flex; align-items: center; gap: 5px;
@@ -406,6 +622,62 @@
     <div class="loading">Loading...</div>
   </div>
 </div>
+
+<!-- PREACHING MODE OVERLAY -->
+<div id="preaching-mode">
+  <div class="preach-topbar">
+    <div class="preach-title" id="preach-title-label"></div>
+    <div class="preach-timer" id="preach-timer">0:00</div>
+    <div class="preach-controls">
+      <button class="preach-btn" onclick="togglePreachTimer()" id="preach-timer-btn">▶ Start</button>
+      <button class="preach-btn" onclick="resetPreachTimer()">↺ Reset</button>
+      <button class="preach-btn danger" onclick="closePreachingMode()">✕ Exit</button>
+    </div>
+  </div>
+  <div class="preach-translation-bar">
+    <span>Scripture translation:</span>
+    <select id="preach-translation" onchange="savePreachTranslation()">
+      <option value="kjv">KJV — King James Version</option>
+      <option value="web">WEB — World English Bible</option>
+      <option value="webbe">WEBBE — WEB British Edition</option>
+      <option value="oeb-us">OEB — Open English Bible</option>
+      <option value="almeida">Almeida (Portuguese)</option>
+      <option value="rccv">Romanian Cornilescu</option>
+    </select>
+    <span style="margin-left:4px;opacity:0.4;">— click any scripture to load its text</span>
+  </div>
+  <div class="preach-split">
+    <div class="preach-left" id="preach-left"></div>
+    <div class="preach-right" id="preach-right"></div>
+  </div>
+</div>
+
+<!-- SCRIPTURE POPUP (inside preaching mode) -->
+<div id="preach-scripture-popup" onclick="closeScripturePopup(event)">
+  <div class="preach-popup-card">
+    <button class="preach-popup-close" onclick="closeScripturePopup()">×</button>
+    <div id="preach-popup-ref"></div>
+    <div id="preach-popup-text"></div>
+  </div>
+</div>
+
+<!-- FOCUSED SECTION POPUP -->
+<div id="preach-focus-popup" onclick="closeFocusPopup(event)">
+  <div class="focus-popup-card">
+    <div class="focus-popup-header">
+      <div class="focus-popup-nav">
+        <button class="focus-nav-btn" id="focus-prev-btn" onclick="focusStep(-1)">← Prev</button>
+        <span class="focus-popup-counter" id="focus-counter"></span>
+        <button class="focus-nav-btn" id="focus-next-btn" onclick="focusStep(1)">Next →</button>
+      </div>
+      <button class="focus-popup-close" onclick="closeFocusPopup()">×</button>
+    </div>
+    <div class="focus-popup-body" id="focus-popup-body"></div>
+  </div>
+</div>
+
+<!-- PRINT VIEW -->
+<div id="print-view"></div>
 
 <!-- QUICK CAPTURE BUTTON -->
 <button id="quick-btn" title="Quick note" onclick="openQuickCapture()">+</button>
@@ -561,7 +833,10 @@ async function renderSermons(c) {
   c.innerHTML = `
     <div class="topbar">
       <span class="topbar-title">Sermons</span>
-      <div style="margin-left:auto;"><button class="btn btn-primary" onclick="openNewSermon()">+ New Sermon</button></div>
+      <div style="margin-left:auto;display:flex;gap:8px;">
+        <button class="btn btn-ghost" onclick="exportSermonsDocx()">⬇ Export Word</button>
+        <button class="btn btn-primary" onclick="openNewSermon()">+ New Sermon</button>
+      </div>
     </div>
     <div class="section-body">
       <div class="search-bar"><input type="text" id="sermon-q" placeholder="Search by title or scripture..." oninput="filterSermons()" /></div>
@@ -604,6 +879,88 @@ function filterSermons() {
 function openSermonDetail(id) {
   const s = cache.sermons.find(x => x.id === id); if (!s) return;
   const vss = (s.scriptures || '').split('\n').filter(Boolean);
+  const quotes = getSermonQuotes(id);
+  const checks = getSermonChecklist(id);
+  const checkItems = ['Introduction','Main Point','Illustration','Application','Call to Action','Closing Prayer'];
+
+  // Parse structured outline
+  let outlineHTML = '';
+  try {
+    const o = s.outline ? JSON.parse(s.outline) : null;
+    if (o && o._structured) {
+      if (o.intro) outlineHTML += `<div style="margin-bottom:14px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-secondary);">Introduction</span><div class="detail-content" style="margin-top:4px;">${esc(o.intro)}</div></div>`;
+      if (o.points?.length) {
+        o.points.forEach((p, pi) => {
+          if (!p.title && !p.topics?.some(t=>t.text)) return;
+          outlineHTML += `<div style="margin-bottom:16px;"><div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px;"><span style="font-size:15px;font-weight:700;color:var(--primary);">${String.fromCharCode(65+pi)}.</span><span style="font-size:15px;font-weight:600;color:var(--text-primary);">${esc(p.title||'')}</span></div>`;
+          (p.topics||[]).forEach((t, ti) => {
+            if (!t.text) return;
+            outlineHTML += `<div style="margin-left:20px;margin-bottom:6px;">
+              <div style="display:flex;align-items:baseline;gap:6px;">
+                <span style="font-size:13px;font-weight:600;color:var(--text-secondary);min-width:18px;">${ti+1}.</span>
+                <div><span style="font-size:14px;color:var(--text-primary);">${esc(t.text)}</span>
+                ${t.ref ? `<span class="scripture-block" style="display:inline-block;margin-left:8px;padding:1px 8px;font-size:12px;cursor:pointer;" onclick="previewRefText('${esc(t.ref)}')">${esc(t.ref)}</span>` : ''}</div>
+              </div>`;
+            (t.subtopics||[]).forEach(st => {
+              if (!st.text) return;
+              outlineHTML += `<div style="margin-left:24px;margin-top:3px;display:flex;align-items:baseline;gap:6px;">
+                <span style="color:var(--text-secondary);font-size:13px;min-width:14px;">—</span>
+                <div><span style="font-size:13px;color:var(--text-secondary);">${esc(st.text)}</span>
+                ${st.ref ? `<span class="scripture-block" style="display:inline-block;margin-left:6px;padding:1px 8px;font-size:11px;cursor:pointer;" onclick="previewRefText('${esc(st.ref)}')">${esc(st.ref)}</span>` : ''}</div>
+              </div>`;
+            });
+            outlineHTML += `</div>`;
+          });
+          outlineHTML += `</div>`;
+        });
+      }
+      if (o.conclusion) outlineHTML += `<div style="margin-top:12px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-secondary);">Conclusion</span><div class="detail-content" style="margin-top:4px;">${esc(o.conclusion)}</div></div>`;
+      if (o.legacyOutline) outlineHTML += `<div class="detail-content" style="margin-top:8px;opacity:0.7;">${esc(o.legacyOutline)}</div>`;
+    } else if (s.outline) {
+      outlineHTML = `<div class="detail-content">${esc(s.outline)}</div>`;
+    }
+  } catch { if (s.outline) outlineHTML = `<div class="detail-content">${esc(s.outline)}</div>`; }
+
+  // Parse WWH + notes
+  let wwhHTML = '', notesHTML = '';
+  try {
+    const n = s.notes ? JSON.parse(s.notes) : null;
+    if (n && n._wwh) {
+      if (n.what || n.why || n.how) {
+        wwhHTML = `<div class="detail-section"><div class="detail-label">What, Why &amp; How</div>
+          <div class="wwh-grid">
+            ${n.what ? `<div class="wwh-block"><div class="wwh-label what">What</div><div style="font-size:13px;line-height:1.6;">${esc(n.what)}</div></div>` : ''}
+            ${n.why  ? `<div class="wwh-block"><div class="wwh-label why">Why</div><div style="font-size:13px;line-height:1.6;">${esc(n.why)}</div></div>`   : ''}
+            ${n.how  ? `<div class="wwh-block"><div class="wwh-label how">How</div><div style="font-size:13px;line-height:1.6;">${esc(n.how)}</div></div>`   : ''}
+          </div></div>`;
+      }
+      if (n.notes) notesHTML = `<div class="detail-section"><div class="detail-label">Notes</div><div class="detail-content">${esc(n.notes)}</div></div>`;
+    } else if (s.notes) {
+      notesHTML = `<div class="detail-section"><div class="detail-label">Notes</div><div class="detail-content">${esc(s.notes)}</div></div>`;
+    }
+  } catch { if (s.notes) notesHTML = `<div class="detail-section"><div class="detail-label">Notes</div><div class="detail-content">${esc(s.notes)}</div></div>`; }
+
+  const checklistHTML = `
+    <div class="detail-section">
+      <div class="detail-label">Sermon Checklist</div>
+      <div class="checklist-grid">
+        ${checkItems.map(item => {
+          const done = checks.includes(item);
+          return `<div class="checklist-item${done?' done':''}" onclick="toggleCheck('${id}','${item}',this)">
+            <div class="check-box">${done?'✓':''}</div>
+            <span class="check-label">${item}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+
+  const quotesHTML = quotes.length ? `
+    <div class="detail-section">
+      <div class="detail-label">Key Quotes</div>
+      ${quotes.map((q,i) => `<div class="quote-block">${esc(q)}<button class="quote-remove" onclick="removeQuote('${id}',${i})">×</button></div>`).join('')}
+    </div>` : '';
+
+  const hasContent = vss.length || outlineHTML || notesHTML || wwhHTML;
   showModal('large', esc(s.title), `
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
       <span style="font-size:12px;color:var(--text-secondary);">${s.date ? fmtDate(s.date) : 'No date'}</span>
@@ -611,14 +968,20 @@ function openSermonDetail(id) {
       ${statusBadge(s.status)}
       ${s.youtube_url ? `<a href="${esc(s.youtube_url)}" target="_blank" class="yt-badge">&#9654; Watch on YouTube</a>` : ''}
     </div>
+    ${checklistHTML}
+    ${wwhHTML}
     ${vss.length ? `<div class="detail-section"><div class="detail-label">Scriptures</div>${vss.map(v=>`<div class="scripture-block">${esc(v)}</div>`).join('')}</div>` : ''}
-    ${s.outline ? `<div class="detail-section"><div class="detail-label">Outline</div><div class="detail-content">${esc(s.outline)}</div></div>` : ''}
-    ${s.notes   ? `<div class="detail-section"><div class="detail-label">Notes</div><div class="detail-content">${esc(s.notes)}</div></div>` : ''}
-    ${!vss.length && !s.outline && !s.notes ? `<p style="color:var(--text-secondary);font-size:14px;">No content yet. Click Edit to add your outline, notes, and scriptures.</p>` : ''}
+    ${outlineHTML ? `<div class="detail-section"><div class="detail-label">Outline</div>${outlineHTML}</div>` : ''}
+    ${notesHTML}
+    ${quotesHTML}
+    ${hasContent ? `<div class="detail-section"><div class="detail-label">Add Key Quote</div><div style="display:flex;gap:8px;"><input type="text" id="new-quote-input" placeholder="Type a key line to highlight..." style="flex:1;" /><button class="btn btn-ghost" onclick="addQuote('${id}')">Add</button></div></div>` : ''}
+    ${!hasContent ? `<p style="color:var(--text-secondary);font-size:14px;">No content yet. Click Edit to add your outline, notes, and scriptures.</p>` : ''}
   `, [
-    { label: 'Delete', cls: 'btn-danger modal-footer-left', action: `delSermon('${id}')` },
-    { label: 'Edit', cls: 'btn-ghost', action: `openEditSermon('${id}')` },
-    { label: 'Close', cls: 'btn-primary', action: 'closeModal()' }
+    { label: 'Delete',      cls: 'btn-danger modal-footer-left', action: `delSermon('${id}')` },
+    { label: '🖨 Print',    cls: 'btn-ghost', action: `printSermon('${id}')` },
+    { label: '🎤 Preach',   cls: 'btn-ghost', action: `openPreachingMode('${id}')` },
+    { label: 'Edit',        cls: 'btn-ghost', action: `openEditSermon('${id}')` },
+    { label: 'Close',       cls: 'btn-primary', action: 'closeModal()' }
   ]);
 }
 
@@ -643,6 +1006,27 @@ function openEditSermon(id) {
 }
 
 function sermonForm(s={}) {
+  // Parse structured outline
+  let intro = '', points = [{ title:'', topics:[{ text:'', ref:'', subtopics:[{text:'',ref:''}] }] }], conclusion = '', plainOutline = '';
+  try {
+    const parsed = s.outline ? JSON.parse(s.outline) : null;
+    if (parsed && parsed._structured) {
+      intro      = parsed.intro      || '';
+      conclusion = parsed.conclusion || '';
+      points     = parsed.points?.length ? parsed.points : points;
+    } else { plainOutline = s.outline || ''; }
+  } catch { plainOutline = s.outline || ''; }
+
+  // Parse WWH + notes
+  let wwhat = '', wwhy = '', whow = '', plainNotes = '';
+  try {
+    const parsed = s.notes ? JSON.parse(s.notes) : null;
+    if (parsed && parsed._wwh) {
+      wwhat = parsed.what || ''; wwhy = parsed.why || ''; whow = parsed.how || '';
+      plainNotes = parsed.notes || '';
+    } else { plainNotes = s.notes || ''; }
+  } catch { plainNotes = s.notes || ''; }
+
   return `
     <div class="form-row">
       <div class="form-group"><label>Title</label><input type="text" id="s-title" value="${esc(s.title||'')}" placeholder="Sermon title" /></div>
@@ -652,16 +1036,200 @@ function sermonForm(s={}) {
       <div class="form-group">
         <label>Status</label>
         <select id="s-status">
-          <option value="draft" ${s.status==='draft'?'selected':''}>Draft</option>
+          <option value="draft" ${(s.status||'draft')==='draft'?'selected':''}>Draft</option>
           <option value="preached" ${s.status==='preached'?'selected':''}>Preached</option>
           <option value="archived" ${s.status==='archived'?'selected':''}>Archived</option>
         </select>
       </div>
       <div class="form-group"><label>YouTube URL</label><input type="url" id="s-yt" value="${esc(s.youtube_url||'')}" placeholder="https://youtube.com/watch?v=..." /></div>
     </div>
-    <div class="form-group"><label>Scriptures (one per line)</label><textarea id="s-scriptures" rows="3" placeholder="John 3:16&#10;Romans 8:28">${esc(s.scriptures||'')}</textarea></div>
-    <div class="form-group"><label>Outline</label><textarea id="s-outline" rows="5" placeholder="I. Introduction&#10;II. Main Points&#10;III. Conclusion">${esc(s.outline||'')}</textarea></div>
-    <div class="form-group"><label>Notes</label><textarea id="s-notes" rows="5" placeholder="Illustrations, applications, additional thoughts...">${esc(s.notes||'')}</textarea></div>`;
+
+    <div class="form-group">
+      <label>What, Why &amp; How</label>
+      <div class="wwh-grid">
+        <div class="wwh-block">
+          <div class="wwh-label what">What is the problem?</div>
+          <textarea id="s-what" rows="3" style="border:none;background:transparent;padding:0;font-size:13px;" placeholder="Describe the problem or need…">${esc(wwhat)}</textarea>
+        </div>
+        <div class="wwh-block">
+          <div class="wwh-label why">Why is it a problem?</div>
+          <textarea id="s-why" rows="3" style="border:none;background:transparent;padding:0;font-size:13px;" placeholder="Why does this matter spiritually?…">${esc(wwhy)}</textarea>
+        </div>
+        <div class="wwh-block">
+          <div class="wwh-label how">How do we resolve it?</div>
+          <textarea id="s-how" rows="3" style="border:none;background:transparent;padding:0;font-size:13px;" placeholder="The biblical answer or solution…">${esc(whow)}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group"><label>Scriptures (one per line)</label><textarea id="s-scriptures" rows="3" placeholder="Luke 1:28-33&#10;John 3:16">${esc(s.scriptures||'')}</textarea></div>
+
+    <div class="form-group">
+      <label>Outline</label>
+      <div class="outline-section">
+        <div class="outline-section-header">Introduction</div>
+        <div class="outline-section-body">
+          <textarea id="s-intro" rows="3" placeholder="Opening thought, hook, or context…">${esc(intro)}</textarea>
+          ${plainOutline ? `<textarea id="s-outline-plain" rows="4" placeholder="Outline…" style="margin-top:6px;">${esc(plainOutline)}</textarea>` : ''}
+        </div>
+      </div>
+
+      <div class="outline-section" style="margin-top:6px;">
+        <div class="outline-section-header">Main Points</div>
+        <div class="outline-section-body" id="main-points-container">
+          ${points.map((p, pi) => renderPointCard(p, pi)).join('')}
+        </div>
+        <div style="padding:0 12px 10px;">
+          <button type="button" class="btn btn-ghost add-topic-btn" onclick="addMainPoint()">+ Add Main Point</button>
+        </div>
+      </div>
+
+      <div class="outline-section" style="margin-top:6px;">
+        <div class="outline-section-header">Conclusion</div>
+        <div class="outline-section-body">
+          <textarea id="s-conclusion" rows="3" placeholder="Closing thought, call to action summary…">${esc(conclusion)}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group"><label>Additional Notes</label><textarea id="s-notes" rows="4" placeholder="Illustrations, stories, additional thoughts…">${esc(plainNotes)}</textarea></div>`;
+}
+
+// ---- Render a full point card (title + topics + subtopics) ----
+function renderPointCard(p, pi) {
+  const letter = String.fromCharCode(65 + pi);
+  const topics = p.topics?.length ? p.topics : [{ text:'', ref:'', subtopics:[{text:'',ref:''}] }];
+  return `
+    <div class="mp-card" id="mp-card-${pi}">
+      <div class="mp-card-header">
+        <span class="mp-letter">${letter}.</span>
+        <input type="text" id="mp-title-${pi}" value="${esc(p.title||'')}" placeholder="Main point title…" />
+        ${pi > 0 ? `<button type="button" class="mp-remove-btn" onclick="removeMainPoint(${pi})">×</button>` : ''}
+      </div>
+      <div class="mp-card-body">
+        <div id="mp-topics-${pi}">
+          ${topics.map((t, ti) => renderTopicRow(t, pi, ti)).join('')}
+        </div>
+        <button type="button" class="btn btn-ghost add-topic-btn" onclick="addTopic(${pi})">+ Add Topic</button>
+      </div>
+    </div>`;
+}
+
+// ---- Render a numbered topic row ----
+function renderTopicRow(t, pi, ti) {
+  const subtopics = t.subtopics?.length ? t.subtopics : [];
+  return `
+    <div class="topic-row" id="mp-topic-${pi}-${ti}">
+      <div class="topic-inputs">
+        <span class="topic-num">${ti + 1}.</span>
+        <div class="topic-fields">
+          <input type="text" id="mp-t-text-${pi}-${ti}" value="${esc(t.text||'')}" placeholder="Topic text…" />
+          <div class="topic-ref-row">
+            <input type="text" class="topic-ref-input" id="mp-t-ref-${pi}-${ti}" value="${esc(t.ref||'')}" placeholder="Scripture ref (optional)…" />
+            ${t.ref ? `<button type="button" class="topic-ref-btn" onclick="previewRef('mp-t-ref-${pi}-${ti}')">📖 Preview</button>` : `<button type="button" class="topic-ref-btn" onclick="previewRef('mp-t-ref-${pi}-${ti}')">📖 Preview</button>`}
+          </div>
+        </div>
+        <button type="button" class="topic-remove-btn" onclick="removeTopic(${pi},${ti})">×</button>
+      </div>
+      <div class="subtopics-container" id="mp-subtopics-${pi}-${ti}">
+        ${subtopics.map((st, si) => renderSubtopicRow(st, pi, ti, si)).join('')}
+      </div>
+      <div style="padding-left:24px;">
+        <button type="button" class="add-subtopic-btn" onclick="addSubtopic(${pi},${ti})">+ Add Subtopic</button>
+      </div>
+    </div>`;
+}
+
+// ---- Render a dashed subtopic row ----
+function renderSubtopicRow(st, pi, ti, si) {
+  return `
+    <div class="subtopic-row" id="mp-sub-${pi}-${ti}-${si}">
+      <span class="subtopic-dash">—</span>
+      <div class="subtopic-fields">
+        <input type="text" id="mp-s-text-${pi}-${ti}-${si}" value="${esc(st.text||'')}" placeholder="Subtopic text…" />
+        <div class="subtopic-ref-row">
+          <input type="text" class="subtopic-ref-input" id="mp-s-ref-${pi}-${ti}-${si}" value="${esc(st.ref||'')}" placeholder="Scripture ref (optional)…" />
+          <button type="button" class="topic-ref-btn" onclick="previewRef('mp-s-ref-${pi}-${ti}-${si}')">📖 Preview</button>
+        </div>
+      </div>
+      <button type="button" class="subtopic-remove-btn" onclick="removeSubtopic(${pi},${ti},${si})">×</button>
+    </div>`;
+}
+
+// ---- Add / remove helpers ----
+function addMainPoint() {
+  const container = document.getElementById('main-points-container');
+  if (!container) return;
+  const pi = container.querySelectorAll('.mp-card').length;
+  const div = document.createElement('div');
+  div.innerHTML = renderPointCard({ title:'', topics:[{text:'',ref:'',subtopics:[]}] }, pi);
+  container.insertBefore(div.firstElementChild, container.nextSibling);
+}
+
+function removeMainPoint(pi) {
+  const container = document.getElementById('main-points-container');
+  const card = document.getElementById(`mp-card-${pi}`);
+  if (card && container.querySelectorAll('.mp-card').length > 1) {
+    card.remove();
+    rebuildPointLabels();
+  }
+}
+
+function rebuildPointLabels() {
+  document.querySelectorAll('#main-points-container .mp-card').forEach((card, idx) => {
+    card.id = `mp-card-${idx}`;
+    card.querySelector('.mp-letter').textContent = String.fromCharCode(65 + idx) + '.';
+    const titleInput = card.querySelector('input[type="text"]');
+    if (titleInput) titleInput.id = `mp-title-${idx}`;
+  });
+}
+
+function addTopic(pi) {
+  const container = document.getElementById(`mp-topics-${pi}`);
+  if (!container) return;
+  const ti = container.querySelectorAll('.topic-row').length;
+  const div = document.createElement('div');
+  div.innerHTML = renderTopicRow({ text:'', ref:'', subtopics:[] }, pi, ti);
+  container.appendChild(div.firstElementChild);
+}
+
+function removeTopic(pi, ti) {
+  const row = document.getElementById(`mp-topic-${pi}-${ti}`);
+  const container = document.getElementById(`mp-topics-${pi}`);
+  if (row && container && container.querySelectorAll('.topic-row').length > 1) {
+    row.remove();
+    // Renumber remaining topic rows
+    container.querySelectorAll('.topic-row').forEach((r, idx) => {
+      r.id = `mp-topic-${pi}-${idx}`;
+      r.querySelector('.topic-num').textContent = (idx + 1) + '.';
+    });
+  }
+}
+
+function addSubtopic(pi, ti) {
+  const container = document.getElementById(`mp-subtopics-${pi}-${ti}`);
+  if (!container) return;
+  const si = container.querySelectorAll('.subtopic-row').length;
+  const div = document.createElement('div');
+  div.innerHTML = renderSubtopicRow({ text:'', ref:'' }, pi, ti, si);
+  container.appendChild(div.firstElementChild);
+}
+
+function removeSubtopic(pi, ti, si) {
+  const row = document.getElementById(`mp-sub-${pi}-${ti}-${si}`);
+  if (row) row.remove();
+}
+
+// ---- Preview scripture reference in a field ----
+function previewRef(inputId) {
+  const inp = document.getElementById(inputId);
+  const ref = inp?.value.trim();
+  if (!ref) { toast('Enter a scripture reference first'); return; }
+  // Reuse the preaching mode popup — works outside preaching mode too
+  const popup = document.getElementById('preach-scripture-popup');
+  if (!popup) return;
+  const fakeEl = { dataset: { ref } };
+  showScripturePopup(fakeEl);
 }
 
 async function saveSermon() {
@@ -692,15 +1260,51 @@ async function delSermon(id) {
 }
 
 function sermonPayload() {
+  // Collect full structured outline
+  const points = [];
+  document.querySelectorAll('#main-points-container .mp-card').forEach((card, pi) => {
+    const title = document.getElementById(`mp-title-${pi}`)?.value.trim() || '';
+    const topics = [];
+    card.querySelectorAll('.topic-row').forEach((trow, ti) => {
+      const text = document.getElementById(`mp-t-text-${pi}-${ti}`)?.value.trim() || '';
+      const ref  = document.getElementById(`mp-t-ref-${pi}-${ti}`)?.value.trim()  || '';
+      const subtopics = [];
+      trow.querySelectorAll('.subtopic-row').forEach((srow, si) => {
+        const stext = document.getElementById(`mp-s-text-${pi}-${ti}-${si}`)?.value.trim() || '';
+        const sref  = document.getElementById(`mp-s-ref-${pi}-${ti}-${si}`)?.value.trim()  || '';
+        subtopics.push({ text: stext, ref: sref });
+      });
+      topics.push({ text, ref, subtopics });
+    });
+    points.push({ title, topics });
+  });
+
+  const outlineObj = {
+    _structured: true,
+    intro:      document.getElementById('s-intro')?.value.trim()      || '',
+    points,
+    conclusion: document.getElementById('s-conclusion')?.value.trim() || '',
+  };
+  const plainOutline = document.getElementById('s-outline-plain')?.value.trim();
+  if (plainOutline) outlineObj.legacyOutline = plainOutline;
+
+  const notesObj = {
+    _wwh:  true,
+    what:  document.getElementById('s-what')?.value.trim()  || '',
+    why:   document.getElementById('s-why')?.value.trim()   || '',
+    how:   document.getElementById('s-how')?.value.trim()   || '',
+    notes: document.getElementById('s-notes')?.value.trim() || '',
+  };
+
   return {
-    user_id: currentUser.id,
+    user_id:     currentUser.id,
     title:       document.getElementById('s-title').value.trim(),
     date:        document.getElementById('s-date').value || null,
     status:      document.getElementById('s-status').value,
     youtube_url: document.getElementById('s-yt').value.trim() || null,
     scriptures:  document.getElementById('s-scriptures').value.trim() || null,
-    outline:     document.getElementById('s-outline').value.trim() || null,
-    notes:       document.getElementById('s-notes').value.trim() || null,
+    outline:     JSON.stringify(outlineObj),
+    notes:       JSON.stringify(notesObj),
   };
 }
 
@@ -1170,7 +1774,554 @@ function toast(msg) {
   el._t = setTimeout(() => el.classList.remove('show'), 3000);
 }
 
+// ============================================================
+//  KEY QUOTES  (stored in localStorage per sermon)
+// ============================================================
+function quotesKey(id) { return `mh_quotes_${id}`; }
+function getSermonQuotes(id) {
+  try { return JSON.parse(localStorage.getItem(quotesKey(id)) || '[]'); } catch { return []; }
+}
+function saveSermonQuotes(id, arr) { localStorage.setItem(quotesKey(id), JSON.stringify(arr)); }
+function addQuote(id) {
+  const inp = document.getElementById('new-quote-input');
+  const val = inp?.value.trim(); if (!val) return;
+  const arr = getSermonQuotes(id);
+  arr.push(val); saveSermonQuotes(id, arr);
+  inp.value = '';
+  toast('Quote saved!');
+  closeModal();
+  openSermonDetail(id);
+}
+function removeQuote(id, idx) {
+  const arr = getSermonQuotes(id);
+  arr.splice(idx, 1); saveSermonQuotes(id, arr);
+  closeModal(); openSermonDetail(id);
+}
+
+// ============================================================
+//  SERMON CHECKLIST  (stored in localStorage per sermon)
+// ============================================================
+function checkKey(id) { return `mh_check_${id}`; }
+function getSermonChecklist(id) {
+  try { return JSON.parse(localStorage.getItem(checkKey(id)) || '[]'); } catch { return []; }
+}
+function toggleCheck(id, item, el) {
+  const arr = getSermonChecklist(id);
+  const idx = arr.indexOf(item);
+  if (idx > -1) arr.splice(idx, 1); else arr.push(item);
+  localStorage.setItem(checkKey(id), JSON.stringify(arr));
+  const done = arr.includes(item);
+  el.classList.toggle('done', done);
+  el.querySelector('.check-box').textContent = done ? '✓' : '';
+  el.querySelector('.check-label').style.textDecoration = done ? 'line-through' : '';
+}
+
+// ============================================================
+//  PRINT VIEW
+// ============================================================
+function printSermon(id) {
+  const s = cache.sermons.find(x => x.id === id); if (!s) return;
+  const vss    = (s.scriptures || '').split('\n').filter(Boolean);
+  const quotes = getSermonQuotes(id);
+
+  // Parse WWH + notes
+  let wwhPrint = '', notesPrint = '';
+  try {
+    const n = s.notes ? JSON.parse(s.notes) : null;
+    if (n?._wwh) {
+      if (n.what || n.why || n.how) {
+        wwhPrint = `
+          <div class="print-section-label" style="margin-top:36px;">What, Why &amp; How</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:8px;">
+            ${n.what?`<div style="border:1px solid #eee;border-radius:6px;padding:10px 12px;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#185FA5;margin-bottom:5px;">What</div><div style="font-size:13px;line-height:1.65;">${esc(n.what)}</div></div>`:''}
+            ${n.why ?`<div style="border:1px solid #eee;border-radius:6px;padding:10px 12px;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#8B3A8B;margin-bottom:5px;">Why</div><div style="font-size:13px;line-height:1.65;">${esc(n.why)}</div></div>`:''}
+            ${n.how ?`<div style="border:1px solid #eee;border-radius:6px;padding:10px 12px;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#2E7D32;margin-bottom:5px;">How</div><div style="font-size:13px;line-height:1.65;">${esc(n.how)}</div></div>`:''}
+          </div>`;
+      }
+      if (n.notes) notesPrint = `<div class="print-section-label">Notes</div><div class="print-content">${esc(n.notes)}</div>`;
+    } else if (s.notes) {
+      notesPrint = `<div class="print-section-label">Notes</div><div class="print-content">${esc(s.notes)}</div>`;
+    }
+  } catch { if (s.notes) notesPrint = `<div class="print-section-label">Notes</div><div class="print-content">${esc(s.notes)}</div>`; }
+
+  // Parse structured outline
+  let introPrint = '', pointsPrint = '', conclusionPrint = '';
+  try {
+    const o = s.outline ? JSON.parse(s.outline) : null;
+    if (o?._structured) {
+      if (o.intro) introPrint = `<div class="print-section-label">Introduction</div><div class="print-content" style="margin-bottom:20px;">${esc(o.intro)}</div>`;
+      if (o.points?.some(p => p.title || p.topics?.some(t=>t.text))) {
+        o.points.forEach((p, pi) => {
+          if (!p.title && !p.topics?.some(t=>t.text)) return;
+          // page-break-inside:avoid keeps the whole point together;
+          // page-break-after:auto means the browser breaks AFTER it if needed
+          let html = `<div class="print-point-block">`;
+          html += `<div style="font-size:17px;font-weight:700;margin-bottom:12px;"><span style="color:#185FA5;margin-right:8px;">${String.fromCharCode(65+pi)}.</span>${esc(p.title||'')}</div>`;
+          (p.topics||[]).forEach((t, ti) => {
+            if (!t.text) return;
+            html += `<div style="margin-left:18px;margin-bottom:8px;"><div style="font-size:15px;font-weight:500;">${ti+1}. ${esc(t.text)}${t.ref?` <span style="color:#185FA5;font-size:12px;font-weight:400;">(${esc(t.ref)})</span>`:''}</div>`;
+            (t.subtopics||[]).forEach(st => {
+              if (!st.text) return;
+              html += `<div style="margin-left:24px;font-size:13px;color:#444;margin-top:3px;">— ${esc(st.text)}${st.ref?` <span style="color:#185FA5;font-size:11px;">(${esc(st.ref)})</span>`:''}</div>`;
+            });
+            html += `</div>`;
+          });
+          html += `</div>`;
+          pointsPrint += html;
+        });
+      }
+      if (o.conclusion) conclusionPrint = `<div class="print-point-block"><div class="print-section-label" style="margin-top:0;">Conclusion</div><div class="print-content">${esc(o.conclusion)}</div></div>`;
+      if (o.legacyOutline) pointsPrint += `<div class="print-content">${esc(o.legacyOutline)}</div>`;
+    } else if (s.outline) {
+      pointsPrint = `<div class="print-content">${esc(s.outline)}</div>`;
+    }
+  } catch { if (s.outline) pointsPrint = `<div class="print-content">${esc(s.outline)}</div>`; }
+
+  const pv = document.getElementById('print-view');
+  pv.innerHTML = `
+    <!-- PAGE 1: Title + What/Why/How + Scriptures, then force a page break -->
+    <div class="print-page-1">
+      <div class="print-sermon-title">${esc(s.title)}</div>
+      ${wwhPrint}
+      ${vss.length ? `<div class="print-section-label" style="margin-top:28px;">Scriptures</div>${vss.map(v=>`<div class="print-scripture-block">${esc(v)}</div>`).join('')}` : ''}
+    </div>
+
+    <!-- PAGE 2+: Outline, notes, quotes — flows naturally,
+         page breaks happen only after a complete point, never mid-point -->
+    <div class="print-content-pages">
+      ${introPrint}
+      ${pointsPrint ? `<div class="print-section-label">Main Points</div>${pointsPrint}` : ''}
+      ${conclusionPrint}
+      ${notesPrint}
+      ${quotes.length ? `<div class="print-section-label">Key Quotes</div>${quotes.map(q=>`<div class="print-quote">${esc(q)}</div>`).join('')}` : ''}
+    </div>
+  `;
+  closeModal();
+  window.print();
+}
+
+// ============================================================
+//  PREACHING MODE
+// ============================================================
+let preachInterval = null;
+let preachSeconds  = 0;
+let preachRunning  = false;
+let preachSections = [];
+let preachFocusIdx = -1;
+let preachSermonId = null;
+
+function openPreachingMode(id) {
+  const s = cache.sermons.find(x => x.id === id); if (!s) return;
+  const vss = (s.scriptures || '').split('\n').filter(Boolean);
+  const quotes = getSermonQuotes(id);
+  closeModal();
+
+  preachSermonId = id;
+  preachSections = [];
+  preachFocusIdx = -1;
+
+  document.getElementById('preach-title-label').textContent = s.title;
+  preachSeconds = 0; preachRunning = false;
+  document.getElementById('preach-timer').textContent = '0:00';
+  document.getElementById('preach-timer-btn').textContent = '▶ Start';
+  loadPreachTranslation();
+
+  // Parse data
+  let outline = null, notesData = null;
+  try { outline = s.outline ? JSON.parse(s.outline) : null; } catch {}
+  try { notesData = s.notes ? JSON.parse(s.notes) : null; } catch {}
+
+  // Build sections list for focus popup & nav
+  if (outline?._structured) {
+    if (outline.intro) preachSections.push({ type:'intro', label:'Introduction', data: outline.intro });
+    (outline.points||[]).forEach((p, pi) => {
+      if (p.title || p.topics?.some(t=>t.text))
+        preachSections.push({ type:'point', label:`${String.fromCharCode(65+pi)}. ${p.title||'(untitled)'}`, data: p, index: pi, quotes });
+    });
+    if (outline.conclusion) preachSections.push({ type:'conclusion', label:'Conclusion', data: outline.conclusion });
+  }
+
+  // LEFT PANE
+  let leftHTML = '';
+  if (vss.length) {
+    leftHTML += `<div class="preach-section-label" style="margin-bottom:8px;">Scriptures</div>`;
+    vss.forEach(v => leftHTML += `<div class="preach-scripture" onclick="showScripturePopup(this)" data-ref="${esc(v)}">${esc(v)}</div>`);
+  }
+  if (preachSections.length) {
+    leftHTML += `<div class="preach-section-label" style="margin-top:20px;margin-bottom:8px;">Sections — tap to focus</div>`;
+    preachSections.forEach((sec, idx) => {
+      const icon = sec.type==='point' ? String.fromCharCode(65+sec.index)+'.' : '▸';
+      leftHTML += `<button class="preach-nav-btn" id="preach-nav-${idx}" onclick="openFocusPopup(${idx})"><span class="preach-nav-icon">${icon}</span><span>${esc(sec.label)}</span></button>`;
+    });
+  }
+  if (!vss.length && !preachSections.length) leftHTML = `<p style="color:rgba(240,239,232,0.22);font-size:13px;line-height:1.6;">No scriptures or sections yet.</p>`;
+  document.getElementById('preach-left').innerHTML = leftHTML;
+
+  // RIGHT PANE — full outline
+  let rightHTML = '';
+  if (notesData?._wwh && (notesData.what||notesData.why||notesData.how)) {
+    rightHTML += `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:32px;">`;
+    if (notesData.what) rightHTML += `<div style="background:rgba(24,95,165,0.12);border-radius:8px;padding:12px 14px;"><div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(168,207,238,0.5);margin-bottom:6px;">What</div><div style="font-size:14px;color:rgba(240,239,232,0.8);line-height:1.6;">${esc(notesData.what)}</div></div>`;
+    if (notesData.why)  rightHTML += `<div style="background:rgba(139,58,139,0.12);border-radius:8px;padding:12px 14px;"><div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(210,168,210,0.5);margin-bottom:6px;">Why</div><div style="font-size:14px;color:rgba(240,239,232,0.8);line-height:1.6;">${esc(notesData.why)}</div></div>`;
+    if (notesData.how)  rightHTML += `<div style="background:rgba(46,125,50,0.12);border-radius:8px;padding:12px 14px;"><div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(168,210,168,0.5);margin-bottom:6px;">How</div><div style="font-size:14px;color:rgba(240,239,232,0.8);line-height:1.6;">${esc(notesData.how)}</div></div>`;
+    rightHTML += `</div>`;
+  }
+  if (quotes.length) {
+    rightHTML += `<div class="preach-section-label" style="margin-bottom:12px;">Key Quotes</div>`;
+    quotes.forEach(q => rightHTML += `<div class="preach-highlight">${esc(q)}</div>`);
+    rightHTML += `<div style="margin-bottom:32px;"></div>`;
+  }
+  if (outline?._structured) {
+    if (outline.intro) rightHTML += `<div class="preach-section-label" style="margin-bottom:10px;">Introduction</div><div class="preach-outline" style="margin-bottom:28px;">${esc(outline.intro)}</div>`;
+    if (outline.points?.some(p=>p.title||p.topics?.some(t=>t.text))) {
+      rightHTML += `<div class="preach-section-label" style="margin-bottom:14px;">Main Points</div>`;
+      outline.points.forEach((p,pi) => {
+        if (!p.title && !p.topics?.some(t=>t.text)) return;
+        rightHTML += `<div style="margin-bottom:28px;"><div style="display:flex;align-items:baseline;gap:12px;margin-bottom:12px;"><span style="font-size:32px;font-weight:700;color:rgba(74,158,232,0.55);min-width:36px;line-height:1.2;">${String.fromCharCode(65+pi)}.</span><span style="font-size:26px;font-weight:600;color:#f0efe8;line-height:1.3;">${esc(p.title||'')}</span></div>`;
+        (p.topics||[]).forEach((t,ti) => {
+          if (!t.text) return;
+          rightHTML += `<div style="margin-left:48px;margin-bottom:10px;"><div style="display:flex;align-items:baseline;gap:10px;"><span style="font-size:18px;font-weight:600;color:rgba(168,207,238,0.5);min-width:22px;">${ti+1}.</span><div><span style="font-size:20px;color:#f0efe8;line-height:1.6;">${esc(t.text)}</span>${t.ref?`<span class="focus-ref-chip" onclick="previewRefText('${esc(t.ref)}')">${esc(t.ref)}</span>`:''}</div></div>`;
+          (t.subtopics||[]).forEach(st => {
+            if (!st.text) return;
+            rightHTML += `<div style="margin-left:32px;margin-top:6px;display:flex;align-items:baseline;gap:8px;"><span style="color:rgba(240,239,232,0.3);font-size:16px;min-width:18px;">—</span><div><span style="font-size:17px;color:rgba(240,239,232,0.65);line-height:1.6;">${esc(st.text)}</span>${st.ref?`<span class="focus-ref-chip" style="font-size:11px;" onclick="previewRefText('${esc(st.ref)}')">${esc(st.ref)}</span>`:''}</div></div>`;
+          });
+          rightHTML += `</div>`;
+        });
+        rightHTML += `</div>`;
+      });
+    }
+    if (outline.conclusion) rightHTML += `<div class="preach-section-label" style="margin-bottom:10px;">Conclusion</div><div class="preach-outline">${esc(outline.conclusion)}</div>`;
+  } else if (s.outline) {
+    rightHTML += `<div class="preach-section-label" style="margin-bottom:12px;">Outline</div><div class="preach-outline">${esc(s.outline)}</div>`;
+  }
+  const notesText = notesData?._wwh ? notesData.notes : (typeof s.notes==='string'&&!s.notes.startsWith('{') ? s.notes : '');
+  if (notesText) rightHTML += `<div class="preach-section-label" style="margin-top:32px;margin-bottom:12px;">Notes</div><div class="preach-notes">${esc(notesText)}</div>`;
+  if (!rightHTML) rightHTML = `<p style="color:rgba(240,239,232,0.3);font-size:18px;">No outline or notes yet. Add content first.</p>`;
+  document.getElementById('preach-right').innerHTML = rightHTML;
+  document.getElementById('preaching-mode').classList.add('active');
+}
+
+// ============================================================
+//  FOCUS POPUP — section drill-down with prev/next
+// ============================================================
+let focusCurrentIdx = -1;
+
+function openFocusPopup(idx) {
+  focusCurrentIdx = idx;
+  renderFocusPopup();
+  document.getElementById('preach-focus-popup').classList.add('active');
+  // Highlight active nav button
+  document.querySelectorAll('.preach-nav-btn').forEach((b,i) => b.classList.toggle('focused', i===idx));
+}
+
+function closeFocusPopup(e) {
+  if (e && e.target !== document.getElementById('preach-focus-popup')) return;
+  document.getElementById('preach-focus-popup').classList.remove('active');
+  document.querySelectorAll('.preach-nav-btn').forEach(b => b.classList.remove('focused'));
+  focusCurrentIdx = -1;
+}
+
+function focusStep(dir) {
+  const next = focusCurrentIdx + dir;
+  if (next < 0 || next >= preachSections.length) return;
+  focusCurrentIdx = next;
+  renderFocusPopup();
+  document.querySelectorAll('.preach-nav-btn').forEach((b,i) => b.classList.toggle('focused', i===focusCurrentIdx));
+}
+
+function renderFocusPopup() {
+  const sec = preachSections[focusCurrentIdx];
+  if (!sec) return;
+  const total = preachSections.length;
+  document.getElementById('focus-counter').textContent = `${focusCurrentIdx+1} / ${total}`;
+  document.getElementById('focus-prev-btn').disabled = focusCurrentIdx === 0;
+  document.getElementById('focus-next-btn').disabled = focusCurrentIdx === total-1;
+
+  let html = '';
+  if (sec.type === 'intro') {
+    html += `<div class="focus-section-type">Introduction</div>`;
+    html += `<div class="focus-intro-text">${esc(sec.data)}</div>`;
+  } else if (sec.type === 'conclusion') {
+    html += `<div class="focus-section-type">Conclusion</div>`;
+    html += `<div class="focus-intro-text">${esc(sec.data)}</div>`;
+  } else if (sec.type === 'point') {
+    const p = sec.data;
+    html += `<div class="focus-section-type">Main Point ${String.fromCharCode(65+sec.index)}</div>`;
+    html += `<div class="focus-point-title">${esc(p.title||'(untitled)')}</div>`;
+    (p.topics||[]).forEach((t, ti) => {
+      if (!t.text) return;
+      html += `<div class="focus-topic-row">
+        <span class="focus-topic-num">${ti+1}.</span>
+        <div>
+          <span class="focus-topic-text">${esc(t.text)}</span>
+          ${t.ref ? `<span class="focus-ref-chip" onclick="previewRefText('${esc(t.ref)}')">${esc(t.ref)}</span>` : ''}
+          ${(t.subtopics||[]).filter(st=>st.text).map(st=>`
+            <div class="focus-subtopic-row">
+              <span class="focus-subtopic-dash">—</span>
+              <div>
+                <span class="focus-subtopic-text">${esc(st.text)}</span>
+                ${st.ref ? `<span class="focus-ref-chip" style="font-size:12px;" onclick="previewRefText('${esc(st.ref)}')">${esc(st.ref)}</span>` : ''}
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+    });
+    // Key quotes for this sermon
+    if (sec.quotes?.length) {
+      html += `<hr class="focus-quotes-divider">`;
+      sec.quotes.forEach(q => html += `<div class="focus-quote-block">${esc(q)}</div>`);
+    }
+  }
+  document.getElementById('focus-popup-body').innerHTML = html;
+  document.getElementById('focus-popup-body').scrollTop = 0;
+}
+
+function savePreachTranslation() {
+  const val = document.getElementById('preach-translation').value;
+  localStorage.setItem('mh_preach_translation', val);
+}
+
+function loadPreachTranslation() {
+  const saved = localStorage.getItem('mh_preach_translation') || 'kjv';
+  const sel = document.getElementById('preach-translation');
+  if (sel) sel.value = saved;
+}
+
+async function showScripturePopup(el) {
+  const ref = (el.dataset?.ref || el).trim();
+  const textEl = document.getElementById('preach-popup-text');
+  const refEl  = document.getElementById('preach-popup-ref');
+
+  textEl.innerHTML = `<span class="loading-verse">Loading ${esc(ref)}…</span>`;
+  refEl.textContent = ref;
+  document.getElementById('preach-scripture-popup').classList.add('active');
+
+  const translation = document.getElementById('preach-translation')?.value || 'kjv';
+  const passage = ref.replace(/\b(KJV|NIV|ESV|NKJV|NLT|NASB|MSG|AMP|CSB|RSV|WEB|WEBBE|OEB)\b/i, '').trim();
+  const cacheKey = `mh_verse_${passage.toLowerCase().replace(/\s+/g,'_')}_${translation}`;
+
+  // Try offline cache first
+  const cached = localStorage.getItem(cacheKey);
+  if (cached) {
+    const c = JSON.parse(cached);
+    refEl.textContent = c.label;
+    textEl.innerHTML  = c.html;
+    return;
+  }
+
+  try {
+    const url = `https://bible-api.com/${encodeURIComponent(passage)}?translation=${translation}`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`API error ${resp.status}`);
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+
+    let html = '';
+    if (data.verses?.length > 1) {
+      data.verses.forEach(v => { html += `<sup class="verse-num">${v.verse}</sup>${esc(v.text.trim())} `; });
+    } else {
+      html = esc((data.text||'').trim());
+    }
+    const sel = document.getElementById('preach-translation');
+    const transLabel = sel?.options[sel.selectedIndex]?.text.split('—')[0].trim() || translation.toUpperCase();
+    const label = `${passage} — ${transLabel}`;
+    refEl.textContent = label;
+    textEl.innerHTML  = html;
+    // Cache for offline use
+    try { localStorage.setItem(cacheKey, JSON.stringify({ html, label })); } catch {}
+  } catch {
+    textEl.innerHTML = `<span class="error-verse">Could not load verse. Check your connection, or verify the reference (e.g. "Luke 1:28-33"). Previously loaded verses work offline.</span>`;
+  }
+}
+
+// ---- Preview scripture reference by text value (used in detail view & preaching mode) ----
+function previewRefText(ref) {
+  const fakeEl = { dataset: { ref: ref } };
+  showScripturePopup(fakeEl);
+}
+
+function closeScripturePopup(e) {
+  if (e && e.target !== document.getElementById('preach-scripture-popup')) return;
+  document.getElementById('preach-scripture-popup').classList.remove('active');
+}
+
+function closePreachingMode() {
+  clearInterval(preachInterval);
+  preachInterval = null; preachRunning = false;
+  document.getElementById('preaching-mode').classList.remove('active');
+}
+
+function togglePreachTimer() {
+  preachRunning = !preachRunning;
+  document.getElementById('preach-timer-btn').textContent = preachRunning ? '⏸ Pause' : '▶ Resume';
+  if (preachRunning) {
+    preachInterval = setInterval(() => {
+      preachSeconds++;
+      const m = Math.floor(preachSeconds / 60);
+      const s = preachSeconds % 60;
+      document.getElementById('preach-timer').textContent = `${m}:${String(s).padStart(2,'0')}`;
+    }, 1000);
+  } else {
+    clearInterval(preachInterval);
+  }
+}
+
+function resetPreachTimer() {
+  clearInterval(preachInterval);
+  preachSeconds = 0; preachRunning = false;
+  document.getElementById('preach-timer').textContent = '0:00';
+  document.getElementById('preach-timer-btn').textContent = '▶ Start';
+}
+
+// ============================================================
+//  EXPORT TO WORD (.docx via docx CDN)
+// ============================================================
+async function exportSermonsDocx() {
+  const items = cache.sermons;
+  if (!items.length) { toast('No sermons to export'); return; }
+  toast('Building Word document…');
+
+  // Load docx library from CDN
+  if (!window.docx) {
+    await new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/docx@8/build/index.umd.js';
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
+
+  const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, PageBreak } = window.docx;
+  const children = [];
+
+  // Cover title
+  children.push(new Paragraph({
+    text: 'Sermon Archive',
+    heading: HeadingLevel.TITLE,
+    alignment: AlignmentType.CENTER,
+    spacing: { after: 200 }
+  }));
+  children.push(new Paragraph({
+    children: [new TextRun({ text: `Exported ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`, color:'666666', size: 22 })],
+    alignment: AlignmentType.CENTER,
+    spacing: { after: 600 }
+  }));
+
+  items.forEach((s, idx) => {
+    if (idx > 0) {
+      children.push(new Paragraph({ children: [new PageBreak()] }));
+    }
+    // Sermon title
+    children.push(new Paragraph({
+      text: s.title,
+      heading: HeadingLevel.HEADING_1,
+      spacing: { before: 0, after: 120 }
+    }));
+    // Meta line
+    const metaParts = [];
+    if (s.date) metaParts.push(fmtDate(s.date));
+    metaParts.push(`Status: ${s.status || 'draft'}`);
+    children.push(new Paragraph({
+      children: [new TextRun({ text: metaParts.join('  |  '), color: '888888', size: 20 })],
+      spacing: { after: 240 }
+    }));
+
+    // Checklist
+    const checkItems = ['Introduction','Main Point','Illustration','Application','Call to Action','Closing Prayer'];
+    const checks = getSermonChecklist(s.id);
+    children.push(new Paragraph({ text: 'CHECKLIST', heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 80 } }));
+    checkItems.forEach(item => {
+      const done = checks.includes(item);
+      children.push(new Paragraph({
+        children: [new TextRun({ text: `${done ? '☑' : '☐'}  ${item}`, size: 22 })],
+        spacing: { after: 60 }
+      }));
+    });
+
+    // Scriptures
+    if (s.scriptures) {
+      children.push(new Paragraph({ text: 'SCRIPTURES', heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 80 } }));
+      s.scriptures.split('\n').filter(Boolean).forEach(v => {
+        children.push(new Paragraph({
+          children: [new TextRun({ text: v, italics: true, color: '185FA5', size: 22 })],
+          spacing: { after: 80 },
+          indent: { left: 360 }
+        }));
+      });
+    }
+
+    // Outline
+    if (s.outline) {
+      children.push(new Paragraph({ text: 'OUTLINE', heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 80 } }));
+      s.outline.split('\n').forEach(line => {
+        children.push(new Paragraph({ children: [new TextRun({ text: line || ' ', size: 22 })], spacing: { after: 60 } }));
+      });
+    }
+
+    // Notes
+    if (s.notes) {
+      children.push(new Paragraph({ text: 'NOTES', heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 80 } }));
+      s.notes.split('\n').forEach(line => {
+        children.push(new Paragraph({ children: [new TextRun({ text: line || ' ', size: 22 })], spacing: { after: 60 } }));
+      });
+    }
+
+    // Key Quotes
+    const quotes = getSermonQuotes(s.id);
+    if (quotes.length) {
+      children.push(new Paragraph({ text: 'KEY QUOTES', heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 80 } }));
+      quotes.forEach(q => {
+        children.push(new Paragraph({
+          children: [new TextRun({ text: `"${q}"`, italics: true, bold: true, color: '8B5E00', size: 24 })],
+          spacing: { after: 120 },
+          indent: { left: 360 }
+        }));
+      });
+    }
+  });
+
+  const doc = new Document({
+    styles: {
+      default: { document: { run: { font: 'Arial', size: 22 } } },
+      paragraphStyles: [
+        { id: 'Title', name: 'Title', run: { font: 'Arial', size: 48, bold: true, color: '185FA5' }, paragraph: { spacing: { after: 240 } } },
+        { id: 'Heading1', name: 'Heading 1', basedOn: 'Normal', next: 'Normal', run: { font: 'Arial', size: 32, bold: true, color: '1A1A2E' }, paragraph: { spacing: { before: 240, after: 120 }, outlineLevel: 0 } },
+        { id: 'Heading2', name: 'Heading 2', basedOn: 'Normal', next: 'Normal', run: { font: 'Arial', size: 22, bold: true, color: '66667A', allCaps: true }, paragraph: { spacing: { before: 200, after: 80 }, outlineLevel: 1 } },
+      ]
+    },
+    sections: [{
+      properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } } },
+      children
+    }]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = 'sermons.docx';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Downloaded sermons.docx!');
+}
+
 // ---- START ----
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('preach-scripture-popup').classList.contains('active')) {
+      document.getElementById('preach-scripture-popup').classList.remove('active');
+    } else if (document.getElementById('preach-focus-popup').classList.contains('active')) {
+      closeFocusPopup();
+    } else if (document.getElementById('preaching-mode').classList.contains('active')) {
+      closePreachingMode();
+    }
+  }
+  // Left/Right arrow keys to step through sections while focus popup is open
+  if (document.getElementById('preach-focus-popup').classList.contains('active')) {
+    if (e.key === 'ArrowRight') focusStep(1);
+    if (e.key === 'ArrowLeft')  focusStep(-1);
+  }
+});
 init();
 </script>
 </body>
