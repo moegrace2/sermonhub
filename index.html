@@ -979,6 +979,7 @@ function openSermonDetail(id) {
   `, [
     { label: 'Delete',      cls: 'btn-danger modal-footer-left', action: `delSermon('${id}')` },
     { label: '🖨 Print',    cls: 'btn-ghost', action: `printSermon('${id}')` },
+    { label: '⬇ Word',     cls: 'btn-ghost', action: `exportSingleSermonDocx('${id}')` },
     { label: '🎤 Preach',   cls: 'btn-ghost', action: `openPreachingMode('${id}')` },
     { label: 'Edit',        cls: 'btn-ghost', action: `openEditSermon('${id}')` },
     { label: 'Close',       cls: 'btn-primary', action: 'closeModal()' }
@@ -2176,133 +2177,182 @@ function resetPreachTimer() {
 // ============================================================
 //  EXPORT TO WORD (.docx via docx CDN)
 // ============================================================
-async function exportSermonsDocx() {
-  const items = cache.sermons;
-  if (!items.length) { toast('No sermons to export'); return; }
-  toast('Building Word document…');
-
-  // Load docx library from CDN
-  if (!window.docx) {
+async function loadDocx() {
+  if (window.docx) return true;
+  try {
     await new Promise((res, rej) => {
       const s = document.createElement('script');
       s.src = 'https://cdn.jsdelivr.net/npm/docx@8/build/index.umd.js';
       s.onload = res; s.onerror = rej;
       document.head.appendChild(s);
     });
-  }
+    return true;
+  } catch { toast('Could not load Word export library'); return false; }
+}
 
-  const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, PageBreak } = window.docx;
-  const children = [];
+async function exportSermonsDocx() {
+  const items = cache.sermons;
+  if (!items.length) { toast('No sermons to export'); return; }
+  toast('Building Word document…');
+  if (!await loadDocx()) return;
+  const blob = await buildDocxBlob(items, 'Sermon Archive');
+  downloadBlob(blob, 'sermons.docx');
+  toast('Downloaded sermons.docx!');
+}
 
-  // Cover title
-  children.push(new Paragraph({
-    text: 'Sermon Archive',
-    heading: HeadingLevel.TITLE,
-    alignment: AlignmentType.CENTER,
-    spacing: { after: 200 }
-  }));
-  children.push(new Paragraph({
-    children: [new TextRun({ text: `Exported ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`, color:'666666', size: 22 })],
-    alignment: AlignmentType.CENTER,
-    spacing: { after: 600 }
-  }));
+async function exportSingleSermonDocx(id) {
+  const s = cache.sermons.find(x => x.id === id); if (!s) return;
+  toast('Building Word document…');
+  if (!await loadDocx()) return;
+  const blob = await buildDocxBlob([s], s.title);
+  downloadBlob(blob, `${s.title.replace(/[^a-z0-9]/gi,'_')}.docx`);
+  toast('Downloaded!');
+}
 
-  items.forEach((s, idx) => {
-    if (idx > 0) {
-      children.push(new Paragraph({ children: [new PageBreak()] }));
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function buildDocxBlob(sermons, archiveTitle) {
+  const { Document, Packer, Paragraph, TextRun, PageBreak, BorderStyle, AlignmentType } = window.docx;
+
+  // Helper to make a section label paragraph
+  const sectionLabel = text => new Paragraph({
+    children: [new TextRun({ text, size: 18, bold: true, color: '888888', allCaps: true })],
+    spacing: { before: 320, after: 100 },
+    border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: 'DDDDDD', space: 4 } }
+  });
+
+  const allChildren = [];
+
+  sermons.forEach((s, idx) => {
+    if (idx > 0) allChildren.push(new Paragraph({ children: [new PageBreak()] }));
+
+    // Parse notes/WWH
+    let wwh = null, notesText = '';
+    try {
+      const n = s.notes ? JSON.parse(s.notes) : null;
+      if (n?._wwh) { wwh = n; notesText = n.notes || ''; }
+      else notesText = s.notes || '';
+    } catch { notesText = s.notes || ''; }
+
+    // Parse outline
+    let outline = null;
+    try { outline = s.outline ? JSON.parse(s.outline) : null; } catch {}
+
+    // ── PAGE 1: Title + WWH + Scriptures ──
+    // Title
+    allChildren.push(new Paragraph({
+      children: [new TextRun({ text: s.title, size: 52, bold: true, font: 'Georgia', color: '1A1A2E' })],
+      spacing: { after: 360 },
+      border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: '1A1A2E', space: 6 } }
+    }));
+
+    // What / Why / How
+    if (wwh && (wwh.what || wwh.why || wwh.how)) {
+      allChildren.push(sectionLabel('What, Why & How'));
+      if (wwh.what) {
+        allChildren.push(new Paragraph({ children: [new TextRun({ text: 'WHAT  ', size: 18, bold: true, color: '185FA5' }), new TextRun({ text: wwh.what, size: 22 })], spacing: { after: 80 } }));
+      }
+      if (wwh.why) {
+        allChildren.push(new Paragraph({ children: [new TextRun({ text: 'WHY  ', size: 18, bold: true, color: '8B3A8B' }), new TextRun({ text: wwh.why, size: 22 })], spacing: { after: 80 } }));
+      }
+      if (wwh.how) {
+        allChildren.push(new Paragraph({ children: [new TextRun({ text: 'HOW  ', size: 18, bold: true, color: '2E7D32' }), new TextRun({ text: wwh.how, size: 22 })], spacing: { after: 80 } }));
+      }
     }
-    // Sermon title
-    children.push(new Paragraph({
-      text: s.title,
-      heading: HeadingLevel.HEADING_1,
-      spacing: { before: 0, after: 120 }
-    }));
-    // Meta line
-    const metaParts = [];
-    if (s.date) metaParts.push(fmtDate(s.date));
-    metaParts.push(`Status: ${s.status || 'draft'}`);
-    children.push(new Paragraph({
-      children: [new TextRun({ text: metaParts.join('  |  '), color: '888888', size: 20 })],
-      spacing: { after: 240 }
-    }));
-
-    // Checklist
-    const checkItems = ['Introduction','Main Point','Illustration','Application','Call to Action','Closing Prayer'];
-    const checks = getSermonChecklist(s.id);
-    children.push(new Paragraph({ text: 'CHECKLIST', heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 80 } }));
-    checkItems.forEach(item => {
-      const done = checks.includes(item);
-      children.push(new Paragraph({
-        children: [new TextRun({ text: `${done ? '☑' : '☐'}  ${item}`, size: 22 })],
-        spacing: { after: 60 }
-      }));
-    });
 
     // Scriptures
-    if (s.scriptures) {
-      children.push(new Paragraph({ text: 'SCRIPTURES', heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 80 } }));
-      s.scriptures.split('\n').filter(Boolean).forEach(v => {
-        children.push(new Paragraph({
-          children: [new TextRun({ text: v, italics: true, color: '185FA5', size: 22 })],
-          spacing: { after: 80 },
-          indent: { left: 360 }
-        }));
-      });
+    const vss = (s.scriptures || '').split('\n').filter(Boolean);
+    if (vss.length) {
+      allChildren.push(sectionLabel('Scriptures'));
+      vss.forEach(v => allChildren.push(new Paragraph({
+        children: [new TextRun({ text: v, italics: true, color: '185FA5', size: 22 })],
+        spacing: { after: 80 }, indent: { left: 360 }
+      })));
     }
 
-    // Outline
-    if (s.outline) {
-      children.push(new Paragraph({ text: 'OUTLINE', heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 80 } }));
-      s.outline.split('\n').forEach(line => {
-        children.push(new Paragraph({ children: [new TextRun({ text: line || ' ', size: 22 })], spacing: { after: 60 } }));
-      });
+    // Page break before outline
+    allChildren.push(new Paragraph({ children: [new PageBreak()] }));
+
+    // ── PAGE 2+: Outline ──
+    if (outline?._structured) {
+      // Introduction
+      if (outline.intro) {
+        allChildren.push(sectionLabel('Introduction'));
+        allChildren.push(new Paragraph({ children: [new TextRun({ text: outline.intro, size: 22 })], spacing: { after: 120 } }));
+      }
+
+      // Main Points
+      const validPoints = (outline.points || []).filter(p => p.title || p.topics?.some(t => t.text));
+      if (validPoints.length) {
+        allChildren.push(sectionLabel('Main Points'));
+        validPoints.forEach((p, pi) => {
+          // Point title
+          allChildren.push(new Paragraph({
+            children: [
+              new TextRun({ text: `${String.fromCharCode(65+pi)}.  `, size: 28, bold: true, color: '185FA5' }),
+              new TextRun({ text: p.title || '', size: 28, bold: true, color: '1A1A2E' })
+            ],
+            spacing: { before: 240, after: 120 },
+            keepNext: true
+          }));
+          // Topics
+          (p.topics || []).forEach((t, ti) => {
+            if (!t.text) return;
+            const tRuns = [new TextRun({ text: `${ti+1}.  `, size: 22, bold: true, color: '66667A' }), new TextRun({ text: t.text, size: 22 })];
+            if (t.ref) tRuns.push(new TextRun({ text: `  (${t.ref})`, size: 20, italics: true, color: '185FA5' }));
+            allChildren.push(new Paragraph({ children: tRuns, spacing: { after: 80 }, indent: { left: 360 }, keepNext: true }));
+            // Subtopics
+            (t.subtopics || []).forEach(st => {
+              if (!st.text) return;
+              const stRuns = [new TextRun({ text: '—  ', size: 20, color: 'AAAAAA' }), new TextRun({ text: st.text, size: 20, color: '444444' })];
+              if (st.ref) stRuns.push(new TextRun({ text: `  (${st.ref})`, size: 18, italics: true, color: '185FA5' }));
+              allChildren.push(new Paragraph({ children: stRuns, spacing: { after: 60 }, indent: { left: 720 } }));
+            });
+          });
+        });
+      }
+
+      // Conclusion
+      if (outline.conclusion) {
+        allChildren.push(sectionLabel('Conclusion'));
+        allChildren.push(new Paragraph({ children: [new TextRun({ text: outline.conclusion, size: 22 })], spacing: { after: 120 } }));
+      }
+    } else if (s.outline) {
+      allChildren.push(sectionLabel('Outline'));
+      s.outline.split('\n').forEach(line => allChildren.push(new Paragraph({ children: [new TextRun({ text: line || ' ', size: 22 })], spacing: { after: 60 } })));
     }
 
     // Notes
-    if (s.notes) {
-      children.push(new Paragraph({ text: 'NOTES', heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 80 } }));
-      s.notes.split('\n').forEach(line => {
-        children.push(new Paragraph({ children: [new TextRun({ text: line || ' ', size: 22 })], spacing: { after: 60 } }));
-      });
+    if (notesText) {
+      allChildren.push(sectionLabel('Notes'));
+      allChildren.push(new Paragraph({ children: [new TextRun({ text: notesText, size: 22 })], spacing: { after: 120 } }));
     }
 
     // Key Quotes
     const quotes = getSermonQuotes(s.id);
     if (quotes.length) {
-      children.push(new Paragraph({ text: 'KEY QUOTES', heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 80 } }));
-      quotes.forEach(q => {
-        children.push(new Paragraph({
-          children: [new TextRun({ text: `"${q}"`, italics: true, bold: true, color: '8B5E00', size: 24 })],
-          spacing: { after: 120 },
-          indent: { left: 360 }
-        }));
-      });
+      allChildren.push(sectionLabel('Key Quotes'));
+      quotes.forEach(q => allChildren.push(new Paragraph({
+        children: [new TextRun({ text: `"${q}"`, italics: true, bold: true, color: '8B5E00', size: 24 })],
+        spacing: { after: 120 }, indent: { left: 360 }
+      })));
     }
   });
 
   const doc = new Document({
-    styles: {
-      default: { document: { run: { font: 'Arial', size: 22 } } },
-      paragraphStyles: [
-        { id: 'Title', name: 'Title', run: { font: 'Arial', size: 48, bold: true, color: '185FA5' }, paragraph: { spacing: { after: 240 } } },
-        { id: 'Heading1', name: 'Heading 1', basedOn: 'Normal', next: 'Normal', run: { font: 'Arial', size: 32, bold: true, color: '1A1A2E' }, paragraph: { spacing: { before: 240, after: 120 }, outlineLevel: 0 } },
-        { id: 'Heading2', name: 'Heading 2', basedOn: 'Normal', next: 'Normal', run: { font: 'Arial', size: 22, bold: true, color: '66667A', allCaps: true }, paragraph: { spacing: { before: 200, after: 80 }, outlineLevel: 1 } },
-      ]
-    },
+    styles: { default: { document: { run: { font: 'Arial', size: 22 } } } },
     sections: [{
-      properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } } },
-      children
+      properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 1080, right: 1080, bottom: 1080, left: 1080 } } },
+      children: allChildren
     }]
   });
 
-  const blob = await Packer.toBlob(doc);
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url;
-  a.download = 'sermons.docx';
-  a.click();
-  URL.revokeObjectURL(url);
-  toast('Downloaded sermons.docx!');
+  return Packer.toBlob(doc);
 }
 
 // ---- START ----
