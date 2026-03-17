@@ -1386,7 +1386,7 @@ function filterSermons() {
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
         <div style="min-width:0;flex:1;">
           <div class="card-title">${esc(s.title)}</div>
-          <div class="card-meta">${s.date ? fmtDate(s.date) : 'No date'}${s.scriptures ? ' &bull; ' + esc(s.scriptures.split('\n')[0].substring(0,55)) : ''}</div>
+          <div class="card-meta">${s.date ? fmtDate(s.date) : 'No date'}${s.focus_text ? ' &bull; <em>' + esc(s.focus_text.substring(0,40)) + '</em>' : s.scriptures ? ' &bull; ' + esc(s.scriptures.split('\n')[0].substring(0,55)) : ''}</div>
         </div>
         <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
           ${s.youtube_url ? `<span class="badge badge-yt">YT</span>` : ''}
@@ -3069,6 +3069,7 @@ function printSermon(id) {
     <!-- PAGE 1: Title + What/Why/How + Scriptures, then force a page break -->
     <div class="print-page-1">
       <div class="print-sermon-title">${esc(s.title)}</div>
+      ${s.focus_text ? `<div class="print-section-label" style="margin-top:16px;">Focus Text</div><div class="print-scripture-block" style="font-size:16px;font-family:Georgia,serif;margin-bottom:12px;">${esc(s.focus_text)}</div>` : ''}
       ${wwhPrint}
       ${vss.length ? `<div class="print-section-label" style="margin-top:28px;">Scriptures</div>${vss.map(v=>`<div class="print-scripture-block">${esc(v)}</div>`).join('')}` : ''}
     </div>
@@ -3130,8 +3131,12 @@ function openPreachingMode(id) {
 
   // LEFT PANE
   let leftHTML = '';
+  if (s.focus_text) {
+    leftHTML += `<div class="preach-section-label" style="margin-bottom:8px;">Focus Text</div>`;
+    leftHTML += `<div class="preach-scripture" onclick="showScripturePopup(this)" data-ref="${esc(s.focus_text)}" style="font-style:italic;font-family:var(--font-serif);">${esc(s.focus_text)}</div>`;
+  }
   if (vss.length) {
-    leftHTML += `<div class="preach-section-label" style="margin-bottom:8px;">Scriptures</div>`;
+    leftHTML += `<div class="preach-section-label" style="margin-bottom:8px;${s.focus_text?'margin-top:16px;':''}">Scriptures</div>`;
     vss.forEach(v => leftHTML += `<div class="preach-scripture" onclick="showScripturePopup(this)" data-ref="${esc(v)}">${esc(v)}</div>`);
   }
   if (preachSections.length) {
@@ -3141,7 +3146,7 @@ function openPreachingMode(id) {
       leftHTML += `<button class="preach-nav-btn" id="preach-nav-${idx}" onclick="openFocusPopup(${idx})"><span class="preach-nav-icon">${icon}</span><span>${esc(sec.label)}</span></button>`;
     });
   }
-  if (!vss.length && !preachSections.length) leftHTML = `<p style="color:rgba(240,239,232,0.22);font-size:13px;line-height:1.6;">No scriptures or sections yet.</p>`;
+  if (!vss.length && !preachSections.length && !s.focus_text) leftHTML = `<p style="color:rgba(240,239,232,0.22);font-size:13px;line-height:1.6;">No scriptures or sections yet.</p>`;
   document.getElementById('preach-left').innerHTML = leftHTML;
 
   // RIGHT PANE — full outline
@@ -3454,6 +3459,15 @@ async function buildDocxBlob(sermons, archiveTitle) {
       if (wwh.how) {
         allChildren.push(new Paragraph({ children: [new TextRun({ text: 'HOW  ', size: 18, bold: true, color: '2E7D32' }), new TextRun({ text: wwh.how, size: 22 })], spacing: { after: 80 } }));
       }
+    }
+
+    // Focus Text
+    if (s.focus_text) {
+      allChildren.push(sectionLabel('Focus Text'));
+      allChildren.push(new Paragraph({
+        children: [new TextRun({ text: s.focus_text, italics: true, bold: true, color: '185FA5', size: 26, font: 'Georgia' })],
+        spacing: { after: 120 }, indent: { left: 360 }
+      }));
     }
 
     // Scriptures
