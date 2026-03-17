@@ -22,6 +22,69 @@
       --font-body: 'Outfit', sans-serif;
       --font-serif: 'Lora', serif;
     }
+    body.dark-mode {
+      --primary: #4A9EE8;
+      --primary-light: rgba(74,158,232,0.15);
+      --primary-dark: #A8CFEE;
+      --sidebar-bg: #1A1D26;
+      --content-bg: #13151E;
+      --text-primary: #E8E8F0;
+      --text-secondary: #8888A0;
+      --border: rgba(255,255,255,0.07);
+      --border-strong: rgba(255,255,255,0.13);
+    }
+    body.dark-mode .auth-card { background: #1E2130; }
+    body.dark-mode .auth-screen { background: linear-gradient(135deg,#0f1117 0%,#1a1d26 100%); }
+    body.dark-mode input, body.dark-mode select, body.dark-mode textarea { background: #1E2130; color: var(--text-primary); border-color: var(--border-strong); }
+    body.dark-mode .card { background: #1E2130; }
+    body.dark-mode .modal { background: #1E2130; }
+    body.dark-mode .modal-header, body.dark-mode .modal-footer { background: #1E2130; }
+    body.dark-mode .modal-body { background: #1E2130; }
+    body.dark-mode .btn-ghost { background: transparent; color: var(--text-secondary); }
+    body.dark-mode .btn-ghost:hover { background: rgba(255,255,255,0.07); }
+    body.dark-mode .stat-card { background: #1E2130; }
+    body.dark-mode .gratitude-entry { background: #1E2130; border-color: rgba(239,159,39,0.15); }
+    body.dark-mode .chapter-note { background: rgba(74,158,232,0.1); }
+    body.dark-mode .scripture-block { background: rgba(74,158,232,0.12); color: #A8CFEE; }
+    body.dark-mode .outline-section { border-color: var(--border); }
+    body.dark-mode .outline-section-header { background: #1A1D26; }
+    body.dark-mode .mp-card { border-color: var(--border-strong); }
+    body.dark-mode .mp-card-header { background: rgba(74,158,232,0.12); }
+    body.dark-mode .wwh-block { background: #1A1D26; }
+    body.dark-mode .bible-nav-sheet { background: #1E2130; }
+    body.dark-mode .bible-nav-tab { color: var(--text-secondary); border-color: var(--border-strong); }
+    body.dark-mode .bible-nav-tab.active { background: var(--primary); color: #fff; }
+    body.dark-mode .preach-popup-card { background: #1E2130; }
+    body.dark-mode #sidebar { background: var(--sidebar-bg); border-right-color: var(--border); }
+    body.dark-mode .sidebar-brand { border-bottom-color: var(--border); }
+    body.dark-mode .study-pane-header { background: #1A1D26; }
+    body.dark-mode .reading-plan-bar { background: #13151E; }
+    body.dark-mode .filter-tab { color: var(--text-secondary); border-color: var(--border-strong); }
+    body.dark-mode .filter-tab.active { background: var(--primary); color: #fff; }
+    body.dark-mode .quote-block { background: rgba(239,159,39,0.1); }
+    body.dark-mode .checklist-item { border-color: var(--border-strong); }
+    body.dark-mode .checklist-item.done { background: rgba(99,153,34,0.15); }
+    body.dark-mode #main-content { background: var(--content-bg); }
+    body.dark-mode .topbar { border-bottom-color: var(--border); }
+    body.dark-mode .offline-badge { background: #2a1a1a; color: #F09595; border-color: rgba(240,149,149,0.3); }
+    /* Settings page */
+    .settings-section { margin-bottom: 28px; }
+    .settings-section-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 12px; padding-bottom: 6px; border-bottom: 0.5px solid var(--border); }
+    .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 0.5px solid var(--border); gap: 16px; }
+    .settings-row:last-child { border-bottom: none; }
+    .settings-row-label { font-size: 14px; color: var(--text-primary); font-weight: 500; }
+    .settings-row-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+    .toggle-switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; inset: 0; background: var(--border-strong); border-radius: 12px; cursor: pointer; transition: background 0.2s; }
+    .toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
+    .toggle-switch input:checked + .toggle-slider { background: var(--primary); }
+    .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
+    /* Offline progress */
+    .offline-progress-bar { height: 6px; background: var(--border-strong); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+    .offline-progress-fill { height: 100%; background: var(--primary); border-radius: 3px; transition: width 0.3s; }
+    /* Offline badge in topbar */
+    .offline-badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #FCEBEB; color: #A32D2D; border: 0.5px solid rgba(163,45,45,0.25); font-weight: 500; }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
     body {
@@ -266,6 +329,54 @@
       flex-direction: column; overflow: hidden;
     }
     #preaching-mode.active { display: flex; }
+    #preaching-mode.preach-light {
+      background: #FAFAF8 !important; color: #1A1A2E !important;
+    }
+    #preaching-mode.preach-light * { color: #1A1A2E !important; }
+    #preaching-mode.preach-light .preach-topbar { border-bottom-color: rgba(0,0,0,0.08) !important; color: #1A1A2E !important; }
+    #preaching-mode.preach-light .preach-left { border-right-color: rgba(0,0,0,0.08) !important; background: #F4F6F9 !important; }
+    #preaching-mode.preach-light .preach-title { color: #1A1A2E !important; }
+    #preaching-mode.preach-light .preach-timer { color: #1A1A2E !important; }
+    #preaching-mode.preach-light .preach-btn { background: rgba(0,0,0,0.07) !important; color: #1A1A2E !important; }
+    #preaching-mode.preach-light .preach-btn:hover { background: rgba(0,0,0,0.13) !important; color: #1A1A2E !important; }
+    #preaching-mode.preach-light .preach-btn.danger { background: rgba(163,45,45,0.1) !important; color: #A32D2D !important; }
+    #preaching-mode.preach-light .preach-section-label { color: rgba(26,26,46,0.45) !important; }
+    #preaching-mode.preach-light .preach-scripture { background: #E6F1FB !important; border-color: rgba(24,95,165,0.25) !important; color: #0C447C !important; }
+    #preaching-mode.preach-light .preach-scripture:hover { background: #B5D4F4 !important; color: #0C447C !important; }
+    #preaching-mode.preach-light .preach-outline { color: #1A1A2E !important; }
+    #preaching-mode.preach-light .preach-notes { color: rgba(26,26,46,0.72) !important; }
+    #preaching-mode.preach-light .preach-highlight { background: #FFF3CD !important; border-left-color: #EF9F27 !important; color: #633806 !important; }
+    #preaching-mode.preach-light .preach-nav-btn { color: rgba(26,26,46,0.65) !important; border-color: rgba(0,0,0,0.1) !important; background: transparent !important; }
+    #preaching-mode.preach-light .preach-nav-btn:hover { background: rgba(0,0,0,0.05) !important; color: #1A1A2E !important; }
+    #preaching-mode.preach-light .preach-nav-btn.focused { background: rgba(24,95,165,0.1) !important; border-color: rgba(24,95,165,0.3) !important; color: #185FA5 !important; }
+    #preaching-mode.preach-light .preach-nav-icon { color: rgba(26,26,46,0.35) !important; }
+    #preaching-mode.preach-light .preach-translation-bar { background: rgba(0,0,0,0.03) !important; border-bottom-color: rgba(0,0,0,0.06) !important; color: rgba(26,26,46,0.5) !important; }
+    #preaching-mode.preach-light .preach-translation-bar select { background: rgba(0,0,0,0.05) !important; border-color: rgba(0,0,0,0.15) !important; color: #1A1A2E !important; }
+    #preaching-mode.preach-light .focus-popup-card { background: #FFFFFF !important; border-color: rgba(0,0,0,0.1) !important; color: #1A1A2E !important; }
+    #preaching-mode.preach-light .focus-popup-header { border-bottom-color: rgba(0,0,0,0.07) !important; }
+    #preaching-mode.preach-light .focus-nav-btn { background: rgba(0,0,0,0.06) !important; color: #1A1A2E !important; }
+    #preaching-mode.preach-light .focus-nav-btn:hover { background: rgba(0,0,0,0.12) !important; color: #1A1A2E !important; }
+    #preaching-mode.preach-light .focus-nav-btn:disabled { color: rgba(26,26,46,0.25) !important; }
+    #preaching-mode.preach-light .focus-popup-close { color: rgba(26,26,46,0.35) !important; }
+    #preaching-mode.preach-light .focus-popup-close:hover { color: #1A1A2E !important; }
+    #preaching-mode.preach-light .focus-popup-counter { color: rgba(26,26,46,0.35) !important; }
+    #preaching-mode.preach-light .focus-section-type { color: rgba(26,26,46,0.3) !important; }
+    #preaching-mode.preach-light .focus-point-title { color: #1A1A2E !important; }
+    #preaching-mode.preach-light .focus-intro-text { color: #1A1A2E !important; }
+    #preaching-mode.preach-light .focus-topic-text { color: #1A1A2E !important; }
+    #preaching-mode.preach-light .focus-topic-num { color: rgba(24,95,165,0.6) !important; }
+    #preaching-mode.preach-light .focus-subtopic-text { color: rgba(26,26,46,0.62) !important; }
+    #preaching-mode.preach-light .focus-subtopic-dash { color: rgba(26,26,46,0.25) !important; }
+    #preaching-mode.preach-light .focus-quote-block { background: #FFF3CD !important; color: #633806 !important; }
+    #preaching-mode.preach-light .focus-ref-chip { background: rgba(24,95,165,0.1) !important; color: #185FA5 !important; }
+    #preaching-mode.preach-light .focus-quotes-divider { border-top-color: rgba(0,0,0,0.08) !important; }
+    #preaching-mode.preach-light .preach-popup-card { background: #EEF4FB !important; border-color: rgba(24,95,165,0.2) !important; color: #0C447C !important; }
+    #preaching-mode.preach-light #preach-popup-text { color: #0C447C !important; }
+    #preaching-mode.preach-light .preach-popup-ref { color: rgba(12,68,124,0.55) !important; }
+    #preaching-mode.preach-light .preach-popup-close { color: rgba(12,68,124,0.4) !important; }
+    #preaching-mode.preach-light .preach-popup-close:hover { color: #0C447C !important; }
+    #preaching-mode.preach-light .loading-verse { color: rgba(12,68,124,0.5) !important; }
+    #preaching-mode.preach-light .verse-num { color: rgba(12,68,124,0.45) !important; }
     .preach-topbar {
       display: flex; align-items: center; justify-content: space-between;
       padding: 14px 24px; border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -304,6 +415,16 @@
       border-radius: 16px; padding: 36px 44px 36px 44px; max-width: 720px; width: 100%;
       max-height: 80vh; display: flex; flex-direction: column; position: relative;
     }
+    .preach-popup-card.light-popup {
+      background: #EEF4FB !important; border-color: rgba(24,95,165,0.2) !important;
+    }
+    .preach-popup-card.light-popup * { color: #0C447C !important; }
+    .preach-popup-card.light-popup .preach-popup-close { color: rgba(12,68,124,0.4) !important; }
+    .preach-popup-card.light-popup .preach-popup-close:hover { color: #0C447C !important; }
+    .preach-popup-card.light-popup .preach-popup-ref { color: rgba(12,68,124,0.55) !important; }
+    .preach-popup-card.light-popup #preach-popup-text { color: #0C447C !important; }
+    .preach-popup-card.light-popup .loading-verse { color: rgba(12,68,124,0.5) !important; }
+    .preach-popup-card.light-popup .verse-num { color: rgba(12,68,124,0.45) !important; }
     .preach-popup-close {
       position: absolute; top: 16px; right: 20px;
       background: none; border: none; color: rgba(200,227,248,0.4);
@@ -336,6 +457,27 @@
       border-radius: 16px; width: 100%; max-width: 860px;
       max-height: 88vh; display: flex; flex-direction: column; position: relative;
     }
+    .focus-popup-card.light-popup {
+      background: #FFFFFF !important; border-color: rgba(0,0,0,0.1) !important;
+    }
+    .focus-popup-card.light-popup * { color: #1A1A2E !important; }
+    .focus-popup-card.light-popup .focus-popup-header { border-bottom-color: rgba(0,0,0,0.07) !important; }
+    .focus-popup-card.light-popup .focus-nav-btn { background: rgba(0,0,0,0.06) !important; color: #1A1A2E !important; }
+    .focus-popup-card.light-popup .focus-nav-btn:hover { background: rgba(0,0,0,0.12) !important; }
+    .focus-popup-card.light-popup .focus-nav-btn:disabled { color: rgba(26,26,46,0.25) !important; }
+    .focus-popup-card.light-popup .focus-popup-close { color: rgba(26,26,46,0.35) !important; }
+    .focus-popup-card.light-popup .focus-popup-close:hover { color: #1A1A2E !important; }
+    .focus-popup-card.light-popup .focus-popup-counter { color: rgba(26,26,46,0.35) !important; }
+    .focus-popup-card.light-popup .focus-section-type { color: rgba(26,26,46,0.3) !important; }
+    .focus-popup-card.light-popup .focus-point-title { color: #1A1A2E !important; }
+    .focus-popup-card.light-popup .focus-intro-text { color: #1A1A2E !important; }
+    .focus-popup-card.light-popup .focus-topic-text { color: #1A1A2E !important; }
+    .focus-popup-card.light-popup .focus-topic-num { color: rgba(24,95,165,0.6) !important; }
+    .focus-popup-card.light-popup .focus-subtopic-text { color: rgba(26,26,46,0.62) !important; }
+    .focus-popup-card.light-popup .focus-subtopic-dash { color: rgba(26,26,46,0.25) !important; }
+    .focus-popup-card.light-popup .focus-quote-block { background: #FFF3CD !important; color: #633806 !important; }
+    .focus-popup-card.light-popup .focus-ref-chip { background: rgba(24,95,165,0.1) !important; color: #185FA5 !important; }
+    .focus-popup-card.light-popup .focus-quotes-divider { border-top-color: rgba(0,0,0,0.08) !important; }
     .focus-popup-header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 14px 24px; border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0;
@@ -601,6 +743,16 @@
     .read-badge.unread { background: transparent; color: var(--text-secondary); border: 0.5px solid var(--border-strong); }
     .read-badge.unread:hover { background: #EAF3DE; color: #3B6D11; border-color: rgba(59,109,17,0.3); }
     .read-badge.read   { background: #EAF3DE; color: #3B6D11; border: 0.5px solid rgba(59,109,17,0.2); }
+
+    /* Notes panel collapse */
+    .study-right.collapsed { width: 0; min-width: 0; overflow: hidden; border: none; }
+    .study-left.expanded   { width: 100%; }
+    .collapse-btn {
+      background: none; border: 0.5px solid var(--border-strong); border-radius: var(--radius);
+      color: var(--text-secondary); font-size: 12px; cursor: pointer; padding: 3px 8px;
+      font-family: var(--font-body); line-height: 1.4; transition: background 0.12s;
+    }
+    .collapse-btn:hover { background: var(--sidebar-bg); color: var(--text-primary); }
 
 /* ---- BIBLE NAVIGATION PICKER ---- */
 	#bible-nav-modal {
@@ -884,6 +1036,9 @@
       <input type="password" id="auth-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')handleAuth()" />
     </div>
     <div id="auth-error" style="font-size:13px;color:#A32D2D;margin-bottom:12px;display:none;"></div>
+    <div id="forgot-row" style="text-align:right;margin-bottom:12px;">
+      <span style="font-size:12px;color:var(--primary);cursor:pointer;" onclick="handleForgotPassword()">Forgot password?</span>
+    </div>
     <button class="btn btn-primary btn-full" id="auth-btn" onclick="handleAuth()">Sign In</button>
     <p style="text-align:center;font-size:12px;color:var(--text-secondary);margin-top:14px;">
       <span id="auth-toggle-text">Don't have an account?</span>
@@ -937,6 +1092,13 @@
           <path d="M8 2.5L9.59611 5.71607L13.1511 6.2918L10.5755 8.8139L11.1922 12.35L8 10.636L4.80783 12.35L5.42452 8.8139L2.84893 6.2918L6.40389 5.71607L8 2.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
         </svg>
         <span>Gratitude</span>
+      </div>
+      <div class="nav-item" data-section="settings" onclick="navigate('settings')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 10a2 2 0 100-4 2 2 0 000 4z" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M13.5 8c0-.34-.03-.67-.08-1l1.28-1a.5.5 0 00.12-.64l-1.2-2.08a.5.5 0 00-.62-.22l-1.5.6a5 5 0 00-1.74-1l-.23-1.58A.5.5 0 009 2H7a.5.5 0 00-.5.43L6.28 4a5 5 0 00-1.74 1l-1.5-.6a.5.5 0 00-.62.22L1.22 6.7a.5.5 0 00.12.63l1.28 1A5.1 5.1 0 002.5 8c0 .34.03.67.08 1l-1.28 1a.5.5 0 00-.12.64l1.2 2.08c.13.22.4.3.62.22l1.5-.6a5 5 0 001.74 1l.23 1.58c.07.43.44.75.88.75h1.98c.44 0 .81-.32.88-.75l.23-1.58a5 5 0 001.74-1l1.5.6c.22.08.49 0 .62-.22l1.2-2.08a.5.5 0 00-.12-.63l-1.28-1c.05-.33.08-.66.08-1z" stroke="currentColor" stroke-width="1.4"/>
+        </svg>
+        <span>Settings</span>
       </div>
     </nav>
     <div class="sidebar-footer">
@@ -1082,10 +1244,16 @@ function showApp(isInitial = false) {
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('app').classList.add('active');
   document.getElementById('quick-btn').style.display = 'flex';
-  const name = (currentUser?.email || '').split('@')[0];
+  const s = loadSettings();
+  const name = s.displayName || (currentUser?.email || '').split('@')[0];
   document.getElementById('brand-user').textContent = name;
-  // Only navigate to dashboard on first load, not on every token refresh
-  if (isInitial) navigate('dashboard');
+  if (s.darkMode) document.body.classList.add('dark-mode');
+  else document.body.classList.remove('dark-mode');
+  if (isInitial) {
+    navigate('dashboard');
+    initOfflineIndicator();
+    applySettingsToApp(s);
+  }
 }
 
 function toggleAuthMode() {
@@ -1096,6 +1264,7 @@ function toggleAuthMode() {
   document.getElementById('auth-toggle-text').textContent = isSU ? 'Already have an account?' : "Don't have an account?";
   document.getElementById('auth-toggle-link').textContent = isSU ? 'Sign in' : 'Sign up';
   document.getElementById('auth-error').style.display = 'none';
+  document.getElementById('forgot-row').style.display = isSU ? 'none' : '';
 }
 
 async function handleAuth() {
@@ -1129,7 +1298,7 @@ function navigate(section) {
   document.querySelectorAll('.nav-item[data-section]').forEach(el =>
     el.classList.toggle('active', el.dataset.section === section));
   const main = document.getElementById('main-content');
-  const renders = { dashboard: renderDashboard, sermons: renderSermons, study: renderStudy, prayer: renderPrayer, gratitude: renderGratitude };
+  const renders = { dashboard: renderDashboard, sermons: renderSermons, study: renderStudy, prayer: renderPrayer, gratitude: renderGratitude, settings: renderSettings };
   if (renders[section]) renders[section](main);
 }
 
@@ -1153,7 +1322,7 @@ async function renderDashboard(c) {
   const active   = prayers.filter(p => p.status === 'active').length;
   const answered = prayers.filter(p => p.status === 'answered').length;
   db.innerHTML = `
-    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Good ${greeting()}, <strong style="color:var(--text-primary);">${(currentUser?.email||'').split('@')[0]}</strong>.</p>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Good ${greeting()}, <strong style="color:var(--text-primary);">${loadSettings().displayName || (currentUser?.email||'').split('@')[0]}</strong>.</p>
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-label">Sermons</div><div class="stat-value">${sermons.length}</div></div>
       <div class="stat-card"><div class="stat-label">Study Notes</div><div class="stat-value">${sn.count || 0}</div></div>
@@ -1321,6 +1490,7 @@ function openSermonDetail(id) {
     </div>
     ${checklistHTML}
     ${wwhHTML}
+    ${s.focus_text ? `<div class="detail-section"><div class="detail-label">Focus Text</div><div class="scripture-block" style="font-size:15px;font-family:var(--font-serif);">${esc(s.focus_text)}</div></div>` : ''}
     ${vss.length ? `<div class="detail-section"><div class="detail-label">Scriptures</div>${vss.map(v=>`<div class="scripture-block">${esc(v)}</div>`).join('')}</div>` : ''}
     ${outlineHTML ? `<div class="detail-section"><div class="detail-label">Outline</div>${outlineHTML}</div>` : ''}
     ${notesHTML}
@@ -1388,8 +1558,8 @@ function sermonForm(s={}) {
       <div class="form-group">
         <label>Status</label>
         <select id="s-status">
-          <option value="draft" ${(s.status||'draft')==='draft'?'selected':''}>Draft</option>
-          <option value="preached" ${s.status==='preached'?'selected':''}>Preached</option>
+          <option value="draft" ${(s.status||(loadSettings().defaultSermonStatus||'draft'))==='draft'?'selected':''}>Draft</option>
+          <option value="preached" ${(s.status||loadSettings().defaultSermonStatus)==='preached'?'selected':''}>Preached</option>
           <option value="archived" ${s.status==='archived'?'selected':''}>Archived</option>
         </select>
       </div>
@@ -1413,6 +1583,8 @@ function sermonForm(s={}) {
         </div>
       </div>
     </div>
+
+    <div class="form-group"><label>Focus Text</label><input type="text" id="s-focus-text" value="${esc(s.focus_text||'')}" placeholder="e.g. Luke 10:38-42 — the primary passage for this sermon" /></div>
 
     <div class="form-group"><label>Scriptures (one per line)</label><textarea id="s-scriptures" rows="3" placeholder="Luke 1:28-33&#10;John 3:16">${esc(s.scriptures||'')}</textarea></div>
 
@@ -1654,6 +1826,7 @@ function sermonPayload() {
     date:        document.getElementById('s-date').value || null,
     status:      document.getElementById('s-status').value,
     youtube_url: document.getElementById('s-yt').value.trim() || null,
+    focus_text:  document.getElementById('s-focus-text')?.value.trim() || null,
     scriptures:  document.getElementById('s-scriptures').value.trim() || null,
     outline:     JSON.stringify(outlineObj),
     notes:       JSON.stringify(notesObj),
@@ -1712,6 +1885,7 @@ async function renderStudy(c) {
             <option value="webbe" ${studyState.translation==='webbe'?'selected':''}>WEBBE</option>
             <option value="oeb-us" ${studyState.translation==='oeb-us'?'selected':''}>OEB</option>
           </select>
+          <button class="collapse-btn" id="notes-show-btn" onclick="toggleNotesPanel()" title="Show notes panel" style="display:none;">Notes &#8249;&#8249;</button>
         </div>
         <div class="reading-plan-bar">
           <button class="read-badge unread" id="read-chapter-btn" onclick="toggleChapterRead()">Mark Read</button>
@@ -1738,9 +1912,10 @@ async function renderStudy(c) {
       <div class="study-right">
         <div class="study-pane-header">
           <span id="study-notes-title" style="font-size:13px;font-weight:500;color:var(--text-primary);">Notes</span>
-          <div style="margin-left:auto;display:flex;gap:5px;">
+          <div style="margin-left:auto;display:flex;gap:5px;align-items:center;">
             <button class="study-tab active" id="tab-chapter" onclick="setStudyTab('chapter',this)">This Chapter</button>
             <button class="study-tab"        id="tab-all"     onclick="setStudyTab('all',this)">All Notes</button>
+            <button class="collapse-btn" id="notes-collapse-btn" onclick="toggleNotesPanel()" title="Hide notes panel">&#8250;&#8250;</button>
           </div>
         </div>
         <div class="study-pane-body" id="study-notes-body"><div class="loading">Loading…</div></div>
@@ -1888,6 +2063,18 @@ async function loadStudyChapter() {
     return;
   }
 
+  // Check offline localStorage cache
+  const offKey = offlineKey(book, chapter, translation);
+  const offData = localStorage.getItem(offKey);
+  if (offData) {
+    try {
+      const verses = JSON.parse(offData);
+      studyState.chapterCache[cacheKey] = verses;
+      renderBibleVerses(verses);
+      return;
+    } catch {}
+  }
+
   body.innerHTML = `<div class="loading">Loading ${esc(book)} ${chapter}…</div>`;
   try {
     const ref = `${book} ${chapter}`;
@@ -1898,10 +2085,12 @@ async function loadStudyChapter() {
     if (data.error) throw new Error(data.error);
     const verses = data.verses || [];
     studyState.chapterCache[cacheKey] = verses;
+    // Auto-save to offline cache as you read
+    try { localStorage.setItem(offKey, JSON.stringify(verses)); } catch {}
     renderBibleVerses(verses);
   } catch (err) {
     body.innerHTML = `<p style="color:var(--text-secondary);font-size:14px;padding:16px;line-height:1.7;">
-      Could not load this chapter. Check your internet connection or try a different translation.<br>
+      Could not load this chapter. ${!navigator.onLine ? 'You are offline — this chapter has not been downloaded yet.' : 'Check your internet connection or try a different translation.'}<br>
       <small style="opacity:0.6;">${esc(err.message)}</small></p>`;
   }
 }
@@ -2348,6 +2537,27 @@ function setStudyTab(tab, btn) {
   document.querySelectorAll('.study-tab').forEach(t => t.classList.remove('active'));
   if (btn) btn.classList.add('active');
   renderRightPane();
+}
+
+function toggleNotesPanel() {
+  const right    = document.querySelector('.study-right');
+  const left     = document.querySelector('.study-left');
+  const hideBtn  = document.getElementById('notes-collapse-btn');
+  const showBtn  = document.getElementById('notes-show-btn');
+  if (!right) return;
+
+  const isCollapsed = right.classList.contains('collapsed');
+  if (isCollapsed) {
+    right.classList.remove('collapsed');
+    left.classList.remove('expanded');
+    if (hideBtn) hideBtn.style.display = '';
+    if (showBtn) showBtn.style.display = 'none';
+  } else {
+    right.classList.add('collapsed');
+    left.classList.add('expanded');
+    if (hideBtn) hideBtn.style.display = 'none';
+    if (showBtn) showBtn.style.display = '';
+  }
 }
 
 function renderRightPane() {
@@ -2975,7 +3185,12 @@ function openPreachingMode(id) {
   if (notesText) rightHTML += `<div class="preach-section-label" style="margin-top:32px;margin-bottom:12px;">Notes</div><div class="preach-notes">${esc(notesText)}</div>`;
   if (!rightHTML) rightHTML = `<p style="color:rgba(240,239,232,0.3);font-size:18px;">No outline or notes yet. Add content first.</p>`;
   document.getElementById('preach-right').innerHTML = rightHTML;
-  document.getElementById('preaching-mode').classList.add('active');
+  const pm = document.getElementById('preaching-mode');
+  pm.classList.add('active');
+  const isLight = loadSettings().preachTheme === 'light';
+  pm.classList.toggle('preach-light', isLight);
+  document.querySelector('.preach-popup-card').classList.toggle('light-popup', isLight);
+  document.querySelector('.focus-popup-card').classList.toggle('light-popup', isLight);
 }
 
 // ============================================================
@@ -3329,6 +3544,312 @@ async function buildDocxBlob(sermons, archiveTitle) {
   });
 
   return Packer.toBlob(doc);
+}
+
+// ============================================================
+//  FORGOT PASSWORD
+// ============================================================
+async function handleForgotPassword() {
+  const email = document.getElementById('auth-email').value.trim();
+  if (!email) { showAuthError('Enter your email address first, then click Forgot password.'); return; }
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.href
+  });
+  if (error) { showAuthError(error.message); return; }
+  const errEl = document.getElementById('auth-error');
+  errEl.style.color = '#3B6D11';
+  errEl.textContent = 'Password reset email sent! Check your inbox.';
+  errEl.style.display = 'block';
+}
+
+// ============================================================
+//  SETTINGS — localStorage-backed
+// ============================================================
+const SETTINGS_KEY = 'mh_settings';
+
+function loadSettings() {
+  try { return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'); }
+  catch { return {}; }
+}
+
+function saveSettings(patch) {
+  const s = { ...loadSettings(), ...patch };
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+  return s;
+}
+
+function applySettingsToApp(s) {
+  // Apply display name
+  const name = s.displayName || (currentUser?.email || '').split('@')[0];
+  const brandUser = document.getElementById('brand-user');
+  if (brandUser) brandUser.textContent = name;
+  // Apply church name
+  const brandName = document.querySelector('.brand-name');
+  if (brandName) brandName.textContent = s.churchName || 'Ministry Hub';
+  // Apply dark mode
+  document.body.classList.toggle('dark-mode', !!s.darkMode);
+  // Apply default translation
+  if (s.defaultTranslation) studyState.translation = s.defaultTranslation;
+}
+
+function renderSettings(c) {
+  const s = loadSettings();
+  const offlineCount = getOfflineChapterCount();
+  const offlinePct   = Math.round((offlineCount / 1189) * 100);
+
+  c.innerHTML = `
+    <div class="topbar">
+      <span class="topbar-title">Settings</span>
+    </div>
+    <div class="section-body">
+
+      <div class="settings-section">
+        <div class="settings-section-title">Profile</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Display name</div>
+            <div class="settings-row-sub">Shown in the sidebar greeting</div>
+          </div>
+          <input type="text" id="set-display-name" value="${esc(s.displayName||'')}"
+            placeholder="${esc((currentUser?.email||'').split('@')[0])}"
+            style="width:180px;" onchange="saveSetting('displayName',this.value)" />
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Church name</div>
+            <div class="settings-row-sub">Replaces "Ministry Hub" in the sidebar</div>
+          </div>
+          <input type="text" id="set-church-name" value="${esc(s.churchName||'')}"
+            placeholder="Ministry Hub"
+            style="width:180px;" onchange="saveSetting('churchName',this.value)" />
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Bible</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Default translation</div>
+            <div class="settings-row-sub">Used when you open Bible Study</div>
+          </div>
+          <select id="set-translation" onchange="saveSetting('defaultTranslation',this.value)" style="width:120px;">
+            <option value="kjv"    ${(s.defaultTranslation||'kjv')==='kjv'   ?'selected':''}>KJV</option>
+            <option value="web"    ${s.defaultTranslation==='web'             ?'selected':''}>WEB</option>
+            <option value="webbe"  ${s.defaultTranslation==='webbe'           ?'selected':''}>WEBBE</option>
+            <option value="oeb-us" ${s.defaultTranslation==='oeb-us'          ?'selected':''}>OEB</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Sermons</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Default sermon status</div>
+            <div class="settings-row-sub">Pre-selected when creating a new sermon</div>
+          </div>
+          <select id="set-sermon-status" onchange="saveSetting('defaultSermonStatus',this.value)" style="width:120px;">
+            <option value="draft"    ${(s.defaultSermonStatus||'draft')==='draft'   ?'selected':''}>Draft</option>
+            <option value="preached" ${s.defaultSermonStatus==='preached'           ?'selected':''}>Preached</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Appearance</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Dark mode</div>
+            <div class="settings-row-sub">Easy on the eyes for late-night prep</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="set-dark-mode" ${s.darkMode?'checked':''}
+              onchange="toggleDarkMode(this.checked)" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Preaching mode theme</div>
+            <div class="settings-row-sub">Choose dark or light when preaching</div>
+          </div>
+          <select id="set-preach-theme" onchange="saveSetting('preachTheme',this.value)" style="width:120px;">
+            <option value="dark"  ${(s.preachTheme||'dark')==='dark' ?'selected':''}>Dark</option>
+            <option value="light" ${s.preachTheme==='light'          ?'selected':''}>Light</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Offline Bible</div>
+        <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:10px;">
+          <div>
+            <div class="settings-row-label">Download Bible for offline use</div>
+            <div class="settings-row-sub">Saves all 1,189 chapters so you can read without internet</div>
+          </div>
+          <div style="width:100%;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+              <span style="font-size:13px;color:var(--text-secondary);" id="offline-status-label">
+                ${offlineCount === 1189
+                  ? 'Full Bible downloaded'
+                  : offlineCount > 0
+                    ? `${offlineCount} of 1,189 chapters saved`
+                    : 'Not downloaded'}
+              </span>
+              <span style="font-size:12px;font-weight:500;color:var(--primary);">${offlinePct}%</span>
+            </div>
+            <div class="offline-progress-bar">
+              <div class="offline-progress-fill" id="offline-prog-fill" style="width:${offlinePct}%"></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:12px;">
+              <button class="btn btn-primary" id="offline-download-btn"
+                onclick="downloadBibleOffline()"
+                ${offlineCount === 1189 ? 'disabled style="opacity:0.5;cursor:default;"' : ''}>
+                ${offlineCount === 1189 ? 'Downloaded' : offlineCount > 0 ? 'Resume Download' : 'Download Bible'}
+              </button>
+              ${offlineCount > 0 ? `<button class="btn btn-danger" onclick="clearOfflineBible()">Clear</button>` : ''}
+            </div>
+            <div id="offline-download-progress" style="display:none;margin-top:10px;">
+              <div style="font-size:12px;color:var(--text-secondary);" id="offline-dl-label">Starting download...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Account</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Email</div>
+            <div class="settings-row-sub">${esc(currentUser?.email||'')}</div>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Sign out</div>
+            <div class="settings-row-sub">Sign out of your account on this device</div>
+          </div>
+          <button class="btn btn-ghost" onclick="signOut()">Sign Out</button>
+        </div>
+      </div>
+
+    </div>`;
+}
+
+function saveSetting(key, value) {
+  const s = saveSettings({ [key]: value || undefined });
+  applySettingsToApp(s);
+  toast('Saved');
+}
+
+function toggleDarkMode(on) {
+  saveSettings({ darkMode: on });
+  document.body.classList.toggle('dark-mode', on);
+}
+
+// ============================================================
+//  OFFLINE MODE
+// ============================================================
+const OFFLINE_PREFIX = 'mh_offline_';
+let offlineDownloading = false;
+
+function offlineKey(book, chapter, translation) {
+  return `${OFFLINE_PREFIX}${translation}_${book}_${chapter}`;
+}
+
+function getOfflineChapterCount() {
+  let count = 0;
+  const trans = loadSettings().defaultTranslation || 'kjv';
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith(`${OFFLINE_PREFIX}${trans}_`)) count++;
+  }
+  return count;
+}
+
+function initOfflineIndicator() {
+  window.addEventListener('online',  () => updateOfflineBadge(true));
+  window.addEventListener('offline', () => updateOfflineBadge(false));
+  updateOfflineBadge(navigator.onLine);
+}
+
+function updateOfflineBadge(isOnline) {
+  const topbar = document.querySelector('.topbar');
+  if (!topbar) return;
+  let badge = document.getElementById('offline-badge');
+  if (isOnline) { if (badge) badge.remove(); return; }
+  if (!badge) {
+    badge = document.createElement('span');
+    badge.id = 'offline-badge';
+    badge.className = 'offline-badge';
+    badge.textContent = 'Offline';
+    topbar.appendChild(badge);
+  }
+}
+
+async function downloadBibleOffline() {
+  if (offlineDownloading) return;
+  offlineDownloading = true;
+  const trans    = loadSettings().defaultTranslation || 'kjv';
+  const btn      = document.getElementById('offline-download-btn');
+  const progDiv  = document.getElementById('offline-download-progress');
+  const dlLabel  = document.getElementById('offline-dl-label');
+  const fillBar  = document.getElementById('offline-prog-fill');
+  const statLabel= document.getElementById('offline-status-label');
+
+  if (btn)     { btn.disabled = true; btn.textContent = 'Downloading...'; }
+  if (progDiv) progDiv.style.display = 'block';
+
+  let downloaded = 0;
+  let skipped    = 0;
+  const total    = 1189;
+
+  for (const book of BIBLE_BOOKS) {
+    for (let ch = 1; ch <= book.ch; ch++) {
+      const key = offlineKey(book.name, ch, trans);
+      if (localStorage.getItem(key)) { skipped++; downloaded++; }
+      else {
+        try {
+          const url  = `https://bible-api.com/${encodeURIComponent(book.name + ' ' + ch)}?translation=${trans}`;
+          const resp = await fetch(url);
+          if (resp.ok) {
+            const data = await resp.json();
+            if (data.verses?.length) {
+              try { localStorage.setItem(key, JSON.stringify(data.verses)); } catch { }
+            }
+          }
+          downloaded++;
+        } catch { downloaded++; }
+      }
+
+      const pct = Math.round((downloaded / total) * 100);
+      if (fillBar)  fillBar.style.width  = pct + '%';
+      if (dlLabel)  dlLabel.textContent  = `${downloaded} / ${total} chapters (${pct}%)`;
+      if (statLabel) statLabel.textContent = `${downloaded} of 1,189 chapters saved`;
+
+      // Small delay to avoid rate limiting
+      if (!skipped || downloaded % 10 === 0) await new Promise(r => setTimeout(r, 80));
+    }
+  }
+
+  offlineDownloading = false;
+  if (btn)    { btn.disabled = true; btn.textContent = 'Downloaded'; }
+  if (dlLabel) dlLabel.textContent = 'Download complete!';
+  toast('Bible downloaded for offline use!');
+}
+
+function clearOfflineBible() {
+  if (!confirm('Remove offline Bible data? You can re-download anytime.')) return;
+  const trans = loadSettings().defaultTranslation || 'kjv';
+  const prefix = `${OFFLINE_PREFIX}${trans}_`;
+  const toRemove = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith(prefix)) toRemove.push(k);
+  }
+  toRemove.forEach(k => localStorage.removeItem(k));
+  toast('Offline Bible data cleared');
+  navigate('settings');
 }
 
 // ---- START ----
