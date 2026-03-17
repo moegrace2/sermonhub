@@ -1421,7 +1421,8 @@ const TOTAL_CHAPTERS = 1189;
 const studyState = {
   book: 'John', chapter: 1,
   translation: localStorage.getItem('mh_study_translation') || 'kjv',
-  selectedVerse: null,
+  selectedVerse: null,      // kept for backward compat
+  selectedVerses: new Set(), // multi-select
   highlights: {},
   readChapters: new Set(),
   tab: 'chapter',
@@ -1466,8 +1467,17 @@ async function renderStudy(c) {
             <div class="hl-dot" style="background:#eee;border:1.5px solid #ccc;font-size:11px;color:#888;" onclick="applyHighlight('none')" title="Remove">✕</div>
           </div>
           <button class="btn btn-primary" style="padding:5px 11px;font-size:12px;margin-left:4px;" onclick="annotateSelectedVerse()">+ Note</button>
+          <button class="btn btn-ghost" style="padding:5px 11px;font-size:12px;" onclick="addVerseToSermon()">+ Sermon</button>
+          <button onclick="clearVerseSelection()" style="background:none;border:none;cursor:pointer;color:var(--text-secondary);font-size:18px;padding:0 4px;line-height:1;margin-left:auto;">×</button>
           <button onclick="clearVerseSelection()" style="background:none;border:none;cursor:pointer;color:var(--text-secondary);font-size:18px;padding:0 4px;line-height:1;margin-left:auto;">×</button>
         </div>
+        <div style="padding:8px 16px;border-bottom:0.5px solid var(--border);background:#fff;display:flex;gap:6px;flex-shrink:0;">
+          <input type="text" id="study-search-input" placeholder="Search this chapter…"
+            style="flex:1;padding:6px 10px;font-size:13px;"
+            oninput="searchStudyVerses()" />
+          <button onclick="clearStudySearch()" class="btn btn-ghost" style="padding:5px 10px;font-size:12px;flex-shrink:0;">Clear</button>
+        </div>
+        <div style="font-size:11px;color:var(--text-secondary);padding:4px 16px 0;flex-shrink:0;min-height:18px;" id="study-search-status"></div>
         <div class="study-pane-body" id="study-bible-body"><div class="loading">Loading scripture…</div></div>
       </div>
       <div class="study-right">
@@ -1640,6 +1650,59 @@ async function loadStudyChapter() {
       <small style="opacity:0.6;">${esc(err.message)}</small></p>`;
   }
 }
+function searchStudyVerses() {
+  const q = (document.getElementById('study-search-input')?.value || '').trim().toLowerCase();
+  const status = document.getElementById('study-search-status');
+  const cacheKey = `${studyState.book}_${studyState.chapter}_${studyState.translation}`;
+  const verses = studyState.chapterCache[cacheKey];
+  if (!verses) return;
+
+  if (!q) { renderBibleVerses(verses); if (status) status.textContent = ''; return; }
+
+  const matches = verses.filter(v => v.text.toLowerCase().includes(q));
+  if (status) status.textContent = matches.length
+    ? `${matches.length} verse${matches.length > 1 ? 's' : ''} found`
+    : 'No matches in this chapter';
+
+  const body = document.getElementById('study-bible-body'); if (!body) return;
+  if (!matches.length) {
+    body.innerHTML = `<div style="padding:32px 20px;text-align:center;color:var(--text-secondary);font-size:14px;">
+      No verses containing "<strong>${esc(q)}</strong>" in ${esc(studyState.book)} ${studyState.chapter}.</div>`;
+    return;
+  }
+
+  const noteVerses = new Set(
+    cache.studyNotes
+      .filter(n => n.book === studyState.book && String(n.chapter) === String(studyState.chapter) && n.verse)
+      .map(n => String(n.verse).split('-')[0])
+  );
+
+  body.innerHTML = matches.map(v => {
+    const vn = v.verse;
+    const hl = studyState.highlights[vn] ? ` hl-${studyState.highlights[vn]}` : '';
+    const hasNote = noteVerses.has(String(vn)) ? ' has-note' : '';
+    const sel = studyState.selectedVerse === vn ? ' selected' : '';
+    // Highlight the matched word inside the verse text
+    const highlighted = esc(v.text.trim()).replace(
+      new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'),
+      `<mark style="background:#FFF59D;border-radius:2px;padding:0 1px;">$1</mark>`
+    );
+    return `<div class="bible-verse${hl}${hasNote}${sel}" id="bv-${vn}" onclick="selectVerse(${vn})">
+      <span class="verse-num-label">${vn}</span>
+      <span class="verse-text">${highlighted}</span>
+    </div>`;
+  }).join('');
+}
+
+function clearStudySearch() {
+  const input = document.getElementById('study-search-input');
+  const status = document.getElementById('study-search-status');
+  if (input) input.value = '';
+  if (status) status.textContent = '';
+  const cacheKey = `${studyState.book}_${studyState.chapter}_${studyState.translation}`;
+  const verses = studyState.chapterCache[cacheKey];
+  if (verses) renderBibleVerses(verses);
+}
 
 function renderBibleVerses(verses) {
   const body = document.getElementById('study-bible-body'); if (!body) return;
@@ -1653,7 +1716,7 @@ function renderBibleVerses(verses) {
     const vn = v.verse;
     const hl = studyState.highlights[vn] ? ` hl-${studyState.highlights[vn]}` : '';
     const hasNote = noteVerses.has(String(vn)) ? ' has-note' : '';
-    const sel = studyState.selectedVerse === vn ? ' selected' : '';
+	const sel = studyState.selectedVerses.has(vn) ? ' selected' : '';
     return `<div class="bible-verse${hl}${hasNote}${sel}" id="bv-${vn}" onclick="selectVerse(${vn})">
       <span class="verse-num-label">${vn}</span>
       <span class="verse-text">${esc(v.text.trim())}</span>
@@ -1662,60 +1725,156 @@ function renderBibleVerses(verses) {
 }
 
 function selectVerse(vn) {
-  if (studyState.selectedVerse === vn) { clearVerseSelection(); return; }
-  if (studyState.selectedVerse !== null) {
-    const prev = document.getElementById(`bv-${studyState.selectedVerse}`);
-    if (prev) prev.classList.remove('selected');
+  const sel = studyState.selectedVerses;
+  if (sel.has(vn)) {
+    sel.delete(vn);
+    const el = document.getElementById(`bv-${vn}`);
+    if (el) el.classList.remove('selected');
+  } else {
+    sel.add(vn);
+    const el = document.getElementById(`bv-${vn}`);
+    if (el) el.classList.add('selected');
   }
-  studyState.selectedVerse = vn;
-  const el = document.getElementById(`bv-${vn}`);
-  if (el) el.classList.add('selected');
 
   const bar = document.getElementById('verse-action-bar');
   const ref = document.getElementById('verse-action-ref');
+  if (!sel.size) { if (bar) bar.style.display = 'none'; return; }
+
+  const sorted = [...sel].sort((a,b) => a - b);
+  const refText = sorted.length === 1
+    ? `${studyState.book} ${studyState.chapter}:${sorted[0]}`
+    : `${studyState.book} ${studyState.chapter}:${sorted[0]}–${sorted[sorted.length-1]} (${sorted.length} verses)`;
+
   if (bar) bar.style.display = 'flex';
-  if (ref) ref.textContent = `${studyState.book} ${studyState.chapter}:${vn}`;
+  if (ref) ref.textContent = refText;
 }
 
 function clearVerseSelection() {
-  if (studyState.selectedVerse !== null) {
-    const el = document.getElementById(`bv-${studyState.selectedVerse}`);
+  studyState.selectedVerses.forEach(vn => {
+    const el = document.getElementById(`bv-${vn}`);
     if (el) el.classList.remove('selected');
-  }
+  });
+  studyState.selectedVerses.clear();
   studyState.selectedVerse = null;
   const bar = document.getElementById('verse-action-bar');
   if (bar) bar.style.display = 'none';
 }
 
 async function applyHighlight(color) {
-  const vn = studyState.selectedVerse; if (vn === null) return;
+  const sel = studyState.selectedVerses;
+  if (!sel.size) return;
   const uid = currentUser.id;
   const { book, chapter } = studyState;
 
-  if (color === 'none') {
-    await sb.from('verse_highlights').delete()
-      .eq('user_id', uid).eq('book', book).eq('chapter', chapter).eq('verse', vn);
-    delete studyState.highlights[vn];
-  } else {
-    await sb.from('verse_highlights').upsert(
-      { user_id: uid, book, chapter, verse: vn, color },
-      { onConflict: 'user_id,book,chapter,verse' }
-    );
-    studyState.highlights[vn] = color;
-  }
-  const el = document.getElementById(`bv-${vn}`);
-  if (el) {
-    ['hl-yellow','hl-blue','hl-green','hl-pink'].forEach(c => el.classList.remove(c));
-    if (color !== 'none') el.classList.add(`hl-${color}`);
-  }
-  toast(color === 'none' ? 'Highlight removed' : 'Highlighted!');
+  await Promise.all([...sel].map(async vn => {
+    if (color === 'none') {
+      await sb.from('verse_highlights').delete()
+        .eq('user_id', uid).eq('book', book).eq('chapter', chapter).eq('verse', vn);
+      delete studyState.highlights[vn];
+    } else {
+      await sb.from('verse_highlights').upsert(
+        { user_id: uid, book, chapter, verse: vn, color },
+        { onConflict: 'user_id,book,chapter,verse' }
+      );
+      studyState.highlights[vn] = color;
+    }
+    const el = document.getElementById(`bv-${vn}`);
+    if (el) {
+      ['hl-yellow','hl-blue','hl-green','hl-pink'].forEach(c => el.classList.remove(c));
+      if (color !== 'none') el.classList.add(`hl-${color}`);
+    }
+  }));
+
+  const count = sel.size;
+  toast(color === 'none'
+    ? `Highlight removed from ${count} verse${count > 1 ? 's' : ''}`
+    : `${count} verse${count > 1 ? 's' : ''} highlighted!`
+  );
+  clearVerseSelection();
 }
 
 function annotateSelectedVerse() {
-  const vn = studyState.selectedVerse; if (vn === null) return;
+  const sel = studyState.selectedVerses;
+  if (!sel.size) return;
   const { book, chapter } = studyState;
+  const sorted = [...sel].sort((a,b) => a - b);
+  const verse = sorted.length === 1
+    ? String(sorted[0])
+    : `${sorted[0]}-${sorted[sorted.length-1]}`;
   clearVerseSelection();
-  openNewNote({ book, chapter: String(chapter), verse: String(vn) });
+  openNewNote({ book, chapter: String(chapter), verse });
+}
+
+async function addVerseToSermon() {
+  const sel = studyState.selectedVerses;
+  if (!sel.size) return;
+  const { book, chapter } = studyState;
+  const sorted = [...sel].sort((a,b) => a - b);
+  const verseRef = sorted.length === 1
+    ? `${book} ${chapter}:${sorted[0]}`
+    : `${book} ${chapter}:${sorted[0]}-${sorted[sorted.length-1]}`;
+
+  // Load sermons if not yet cached
+  if (!cache.sermons.length) {
+    const { data } = await sb.from('sermons').select('*').eq('user_id', currentUser.id).order('date', { ascending: false });
+    cache.sermons = data || [];
+  }
+
+  if (!cache.sermons.length) {
+    showModal('default', 'Add to Sermon', `
+      <p style="font-size:14px;color:var(--text-secondary);">You don't have any sermons yet.</p>
+      <p style="font-size:13px;color:var(--text-secondary);margin-top:8px;">Create a sermon first, then come back to link scriptures to it.</p>
+    `, [
+      { label: 'Go to Sermons', cls: 'btn-primary', action: "closeModal();navigate('sermons')" },
+      { label: 'Cancel', cls: 'btn-ghost', action: 'closeModal()' }
+    ]);
+    return;
+  }
+
+  showModal('default', 'Add to Sermon', `
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
+      Adding <strong style="color:var(--primary);">${esc(verseRef)}</strong> to a sermon.
+    </p>
+    <div class="form-group">
+      <label>Choose Sermon</label>
+      <select id="ats-sermon-sel" style="width:100%;">
+        ${cache.sermons.map(s => `<option value="${s.id}">${esc(s.title)}${s.date ? ' — ' + fmtDate(s.date) : ''}</option>`).join('')}
+      </select>
+    </div>
+  `, [
+    { label: 'Cancel', cls: 'btn-ghost', action: 'closeModal()' },
+    { label: 'Add Scripture', cls: 'btn-primary', action: `confirmAddVerseToSermon('${esc(verseRef)}')` }
+  ]);
+}
+
+async function confirmAddVerseToSermon(verseRef) {
+  const sel = document.getElementById('ats-sermon-sel'); if (!sel) return;
+  const sermonId = sel.value;
+  const sermon = cache.sermons.find(s => s.id === sermonId); if (!sermon) return;
+
+  // Append to existing scriptures, avoiding duplicates
+  const existing = (sermon.scriptures || '').split('\n').map(s => s.trim()).filter(Boolean);
+  if (existing.includes(verseRef)) {
+    toast(`${verseRef} is already in that sermon`);
+    closeModal();
+    return;
+  }
+  const updated = [...existing, verseRef].join('\n');
+
+  const { data, error } = await sb.from('sermons')
+    .update({ scriptures: updated })
+    .eq('id', sermonId)
+    .select().single();
+
+  if (error) { toast('Error: ' + error.message); return; }
+
+  // Update cache
+  const i = cache.sermons.findIndex(s => s.id === sermonId);
+  if (i > -1) cache.sermons[i] = data;
+
+  toast(`Added ${verseRef} to "${sermon.title}"`);
+  closeModal();
+  clearVerseSelection();
 }
 
 async function toggleChapterRead() {
