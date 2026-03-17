@@ -319,7 +319,7 @@
     .preach-outline { font-size: 26px; line-height: 1.8; color: #f0efe8; white-space: pre-wrap; margin-bottom: 32px; }
     .preach-notes { font-size: 20px; line-height: 1.8; color: rgba(240,239,232,0.72); white-space: pre-wrap; }
     .preach-highlight { background: rgba(239,159,39,0.22); border-left: 3px solid #EF9F27; border-radius: 0 6px 6px 0; padding: 12px 18px; font-size: 24px; font-family: var(--font-serif); color: #F7C875; margin-bottom: 10px; line-height: 1.6; }
-    .preach-controls { display: flex; gap: 10px; align-items: center; }
+    .preach-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .preach-btn { background: rgba(255,255,255,0.1); border: none; color: #f0efe8; padding: 7px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; font-family: var(--font-body); }
     .preach-btn:hover { background: rgba(255,255,255,0.18); }
     .preach-btn.danger { background: rgba(163,45,45,0.3); }
@@ -602,18 +602,202 @@
     .read-badge.unread:hover { background: #EAF3DE; color: #3B6D11; border-color: rgba(59,109,17,0.3); }
     .read-badge.read   { background: #EAF3DE; color: #3B6D11; border: 0.5px solid rgba(59,109,17,0.2); }
 
-    @media (max-width: 860px) {
-      .study-split { flex-direction: column; }
-      .study-left  { width: 100%; border-right: none; border-bottom: 0.5px solid var(--border); max-height: 55%; }
+    /* ============================================================
+       RESPONSIVE — TABLET  (≤ 900px)
+    ============================================================ */
+    @media (max-width: 900px) {
+
+      /* Sidebar: shrink to icon-only rail */
+      #sidebar { width: 60px; }
+      .sidebar-brand, .nav-item span, .brand-user { display: none; }
+      .nav-item { justify-content: center; padding: 10px 0; margin: 1px 6px; }
+      .nav-icon { width: 20px; height: 20px; opacity: 0.7; }
+      .sidebar-footer .nav-item { justify-content: center; }
+
+      /* Bible study: stack reader above notes */
+      .study-split { flex-direction: column; height: auto; }
+      .study-left  { width: 100%; border-right: none; border-bottom: 0.5px solid var(--border); max-height: 52vh; min-height: 280px; }
+      .study-right { flex: 1; min-height: 220px; }
+
+      /* Bible study topbar: wrap search below title */
+      .topbar { height: auto; min-height: 56px; flex-wrap: wrap; padding: 8px 16px; gap: 6px; }
+      .topbar > div[style*="margin-left:auto"] { width: 100%; margin-left: 0 !important; }
+      #bible-search-input { width: 100% !important; }
+
+      /* Sermon form: 2-col grids stay on tablet but forms are fine */
+      .wwh-grid { grid-template-columns: 1fr 1fr; }
+
+      /* Modal: slightly narrower */
+      .modal-lg { width: 96vw; }
     }
 
+    /* ============================================================
+       RESPONSIVE — MOBILE  (≤ 680px)
+    ============================================================ */
     @media (max-width: 680px) {
-      #sidebar { width: 56px; }
-      .sidebar-brand, .nav-item span, .brand-user, .brand-name { display: none; }
-      .nav-icon { opacity: 0.8; width: 20px; height: 20px; }
-      .nav-item { justify-content: center; padding: 10px; }
-      .sidebar-footer .nav-item { justify-content: center; }
-      .form-row { grid-template-columns: 1fr; }
+
+      /* ── Prevent horizontal scroll on body ── */
+      html, body { overflow-x: hidden; }
+
+      /* ── Auth card: full width with breathing room ── */
+      #auth-screen { padding: 16px; align-items: center; }
+      .auth-card { width: 100%; max-width: 100%; padding: 28px 20px; border-radius: 16px; }
+
+      /* ── Sidebar → bottom tab bar ── */
+      #sidebar {
+        position: fixed; bottom: 0; left: 0; right: 0;
+        width: 100%; height: 58px;
+        flex-direction: row;
+        border-right: none; border-top: 0.5px solid var(--border);
+        padding: 0; z-index: 80; background: #fff;
+      }
+      .sidebar-brand  { display: none; }
+      .sidebar-footer { display: none; }
+      nav { display: flex; flex-direction: row; width: 100%; align-items: stretch; }
+      .nav-item {
+        flex: 1; flex-direction: column;
+        justify-content: center; align-items: center;
+        padding: 5px 2px; margin: 0; border-radius: 0; gap: 2px;
+      }
+      .nav-item span { display: block; font-size: 9px; line-height: 1.2; text-align: center; }
+      .nav-item.active {
+        background: transparent; color: var(--primary);
+        border-top: 2px solid var(--primary); border-radius: 0;
+      }
+      .nav-item.active .nav-icon { opacity: 1; }
+      .nav-icon { width: 19px; height: 19px; opacity: 0.55; }
+
+      /* ── Main content: room for bottom tab bar ── */
+      #main-content { padding-bottom: 58px; }
+      .section-body  { padding: 14px; }
+
+      /* ── Topbar: wrap to multiple lines if needed ── */
+      .topbar {
+        height: auto; min-height: 50px;
+        padding: 8px 14px; flex-wrap: wrap; gap: 6px;
+      }
+      .topbar-title { font-size: 15px; }
+      /* Action buttons in topbar: fill row on mobile */
+      .topbar > div[style*="margin-left:auto"] { margin-left: auto !important; display: flex; gap: 6px; flex-wrap: wrap; }
+
+      /* ── Bible study topbar specifically ── */
+      .topbar > div[style*="margin-left:auto"][style*="align-items:center"] {
+        width: 100%; margin-left: 0 !important; order: 2;
+      }
+      #bible-search-input { width: 100% !important; min-width: 0; }
+
+      /* ── Forms: all grids → single column ── */
+      .form-row          { grid-template-columns: 1fr; }
+      .wwh-grid          { grid-template-columns: 1fr; }
+      .checklist-grid    { grid-template-columns: 1fr; }
+
+      /* ── Stats: 2 across ── */
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .stat-value { font-size: 24px; }
+
+      /* ── Cards ── */
+      .card { padding: 11px 13px; }
+      .card-title { font-size: 14px; }
+
+      /* ── Badges: slightly smaller ── */
+      .badge { font-size: 10px; padding: 2px 7px; }
+
+      /* ── Filter tabs: horizontal scroll ── */
+      .filter-tabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; gap: 5px; }
+      .filter-tab  { flex-shrink: 0; padding: 4px 12px; }
+
+      /* ── Modals: full-width bottom sheet ── */
+      #modal-overlay { padding: 0; align-items: flex-end; }
+      .modal, .modal-lg {
+        width: 100%; max-width: 100%;
+        border-radius: 16px 16px 0 0;
+        max-height: 93vh;
+      }
+      .modal-header { padding: 14px 16px; }
+      .modal-body   { padding: 16px; }
+      .modal-footer { padding: 12px 16px; flex-wrap: wrap; gap: 6px; }
+      .modal-footer .btn { flex: 1; justify-content: center; min-width: 80px; font-size: 13px; }
+      .modal-footer-left { flex: 1 1 100%; order: 99; margin-right: 0; }
+
+      /* ── Scripture blocks ── */
+      .scripture-block { font-size: 13px; padding: 8px 12px; }
+
+      /* ── Detail content ── */
+      .detail-content { font-size: 13px; }
+      .wwh-block textarea { font-size: 13px !important; }
+
+      /* ── Outline builder: tighter on mobile ── */
+      .mp-card-header { padding: 8px 10px; }
+      .mp-card-body   { padding: 8px 10px; }
+      .topic-ref-input { width: 120px !important; }
+      .subtopic-ref-input { width: 110px !important; }
+      .outline-section-header { font-size: 10px; padding: 6px 12px; }
+
+      /* ── Bible study ── */
+      .study-split { flex-direction: column; height: auto; }
+      .study-left  { max-height: 52vh; min-height: 220px; width: 100%; border-right: none; border-bottom: 0.5px solid var(--border); }
+      .study-right { flex: 1; min-height: 180px; }
+      .study-pane-header { flex-wrap: wrap; gap: 5px; padding: 7px 10px; }
+      .study-pane-header select { max-width: none !important; flex: 1; min-width: 0; }
+      .study-pane-body { padding: 12px 14px; }
+      .verse-text  { font-size: 15px; line-height: 1.75; }
+      .verse-num-label { font-size: 9px; min-width: 16px; }
+      .verse-action-bar { padding: 6px 10px; gap: 5px; flex-wrap: wrap; }
+      .reading-plan-bar { padding: 5px 10px; gap: 7px; }
+      .hl-dot { width: 18px; height: 18px; }
+      .chapter-note-text { font-size: 12px; }
+
+      /* ── Preaching mode ── */
+      .preach-split { flex-direction: column; }
+      .preach-left  {
+        width: 100%; border-right: none;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        max-height: 34vh; min-height: 140px;
+        padding: 12px 14px; gap: 7px;
+      }
+      .preach-right { padding: 18px 16px; flex: 1; }
+      .preach-topbar { flex-wrap: wrap; gap: 6px; padding: 10px 14px; }
+      .preach-timer  { font-size: 20px; order: -1; width: 100%; text-align: center; }
+      .preach-title  { font-size: 14px; flex: 1; }
+      .preach-controls { gap: 6px; }
+      .preach-btn { padding: 6px 12px; font-size: 12px; }
+      .preach-outline { font-size: 19px; line-height: 1.7; }
+      .preach-notes   { font-size: 16px; line-height: 1.7; }
+      .preach-highlight { font-size: 18px; padding: 10px 14px; }
+      .preach-scripture { font-size: 13px; padding: 10px 12px; }
+      .preach-translation-bar { flex-wrap: wrap; padding: 6px 12px; font-size: 11px; }
+      .preach-translation-bar select { font-size: 11px; }
+      .preach-popup-card { padding: 24px 18px 20px; border-radius: 12px; }
+      #preach-popup-text { font-size: 17px; line-height: 1.75; }
+      .focus-popup-body  { padding: 18px 16px; }
+      .focus-popup-header { padding: 10px 16px; }
+      .focus-point-title { font-size: 24px; margin-bottom: 20px; }
+      .focus-topic-text  { font-size: 17px; }
+      .focus-subtopic-text { font-size: 16px; }
+      .focus-intro-text  { font-size: 20px; }
+      .focus-quote-block { font-size: 18px; }
+
+      /* ── Quick capture button: above tab bar ── */
+      #quick-btn { bottom: 68px; right: 14px; width: 44px; height: 44px; font-size: 21px; }
+
+      /* ── Toast: above tab bar, full width ── */
+      #toast { bottom: 68px; right: 14px; left: 14px; text-align: center; white-space: normal; font-size: 12px; }
+
+      /* ── Print styles: hide on mobile ── */
+      .print-styles { display: none; }
+    }
+
+    /* ── Very small phones (≤ 390px) ── */
+    @media (max-width: 390px) {
+      .stats-grid    { grid-template-columns: repeat(2, 1fr); }
+      .topbar-title  { font-size: 14px; }
+      .verse-text    { font-size: 14px; }
+      .preach-outline { font-size: 17px; }
+      .modal-footer .btn { font-size: 12px; padding: 7px 10px; }
+      .nav-item span { font-size: 8px; }
+      .section-body  { padding: 10px; }
+      .card { padding: 10px 12px; }
+      .auth-card { padding: 24px 16px; }
     }
   </style>
 </head>
@@ -1421,8 +1605,7 @@ const TOTAL_CHAPTERS = 1189;
 const studyState = {
   book: 'John', chapter: 1,
   translation: localStorage.getItem('mh_study_translation') || 'kjv',
-  selectedVerse: null,      // kept for backward compat
-  selectedVerses: new Set(), // multi-select
+  selectedVerse: null,
   highlights: {},
   readChapters: new Set(),
   tab: 'chapter',
@@ -1467,17 +1650,8 @@ async function renderStudy(c) {
             <div class="hl-dot" style="background:#eee;border:1.5px solid #ccc;font-size:11px;color:#888;" onclick="applyHighlight('none')" title="Remove">✕</div>
           </div>
           <button class="btn btn-primary" style="padding:5px 11px;font-size:12px;margin-left:4px;" onclick="annotateSelectedVerse()">+ Note</button>
-          <button class="btn btn-ghost" style="padding:5px 11px;font-size:12px;" onclick="addVerseToSermon()">+ Sermon</button>
-          <button onclick="clearVerseSelection()" style="background:none;border:none;cursor:pointer;color:var(--text-secondary);font-size:18px;padding:0 4px;line-height:1;margin-left:auto;">×</button>
           <button onclick="clearVerseSelection()" style="background:none;border:none;cursor:pointer;color:var(--text-secondary);font-size:18px;padding:0 4px;line-height:1;margin-left:auto;">×</button>
         </div>
-        <div style="padding:8px 16px;border-bottom:0.5px solid var(--border);background:#fff;display:flex;gap:6px;flex-shrink:0;">
-          <input type="text" id="study-search-input" placeholder="Search this chapter…"
-            style="flex:1;padding:6px 10px;font-size:13px;"
-            oninput="searchStudyVerses()" />
-          <button onclick="clearStudySearch()" class="btn btn-ghost" style="padding:5px 10px;font-size:12px;flex-shrink:0;">Clear</button>
-        </div>
-        <div style="font-size:11px;color:var(--text-secondary);padding:4px 16px 0;flex-shrink:0;min-height:18px;" id="study-search-status"></div>
         <div class="study-pane-body" id="study-bible-body"><div class="loading">Loading scripture…</div></div>
       </div>
       <div class="study-right">
@@ -1650,59 +1824,6 @@ async function loadStudyChapter() {
       <small style="opacity:0.6;">${esc(err.message)}</small></p>`;
   }
 }
-function searchStudyVerses() {
-  const q = (document.getElementById('study-search-input')?.value || '').trim().toLowerCase();
-  const status = document.getElementById('study-search-status');
-  const cacheKey = `${studyState.book}_${studyState.chapter}_${studyState.translation}`;
-  const verses = studyState.chapterCache[cacheKey];
-  if (!verses) return;
-
-  if (!q) { renderBibleVerses(verses); if (status) status.textContent = ''; return; }
-
-  const matches = verses.filter(v => v.text.toLowerCase().includes(q));
-  if (status) status.textContent = matches.length
-    ? `${matches.length} verse${matches.length > 1 ? 's' : ''} found`
-    : 'No matches in this chapter';
-
-  const body = document.getElementById('study-bible-body'); if (!body) return;
-  if (!matches.length) {
-    body.innerHTML = `<div style="padding:32px 20px;text-align:center;color:var(--text-secondary);font-size:14px;">
-      No verses containing "<strong>${esc(q)}</strong>" in ${esc(studyState.book)} ${studyState.chapter}.</div>`;
-    return;
-  }
-
-  const noteVerses = new Set(
-    cache.studyNotes
-      .filter(n => n.book === studyState.book && String(n.chapter) === String(studyState.chapter) && n.verse)
-      .map(n => String(n.verse).split('-')[0])
-  );
-
-  body.innerHTML = matches.map(v => {
-    const vn = v.verse;
-    const hl = studyState.highlights[vn] ? ` hl-${studyState.highlights[vn]}` : '';
-    const hasNote = noteVerses.has(String(vn)) ? ' has-note' : '';
-    const sel = studyState.selectedVerse === vn ? ' selected' : '';
-    // Highlight the matched word inside the verse text
-    const highlighted = esc(v.text.trim()).replace(
-      new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'),
-      `<mark style="background:#FFF59D;border-radius:2px;padding:0 1px;">$1</mark>`
-    );
-    return `<div class="bible-verse${hl}${hasNote}${sel}" id="bv-${vn}" onclick="selectVerse(${vn})">
-      <span class="verse-num-label">${vn}</span>
-      <span class="verse-text">${highlighted}</span>
-    </div>`;
-  }).join('');
-}
-
-function clearStudySearch() {
-  const input = document.getElementById('study-search-input');
-  const status = document.getElementById('study-search-status');
-  if (input) input.value = '';
-  if (status) status.textContent = '';
-  const cacheKey = `${studyState.book}_${studyState.chapter}_${studyState.translation}`;
-  const verses = studyState.chapterCache[cacheKey];
-  if (verses) renderBibleVerses(verses);
-}
 
 function renderBibleVerses(verses) {
   const body = document.getElementById('study-bible-body'); if (!body) return;
@@ -1716,7 +1837,7 @@ function renderBibleVerses(verses) {
     const vn = v.verse;
     const hl = studyState.highlights[vn] ? ` hl-${studyState.highlights[vn]}` : '';
     const hasNote = noteVerses.has(String(vn)) ? ' has-note' : '';
-	const sel = studyState.selectedVerses.has(vn) ? ' selected' : '';
+    const sel = studyState.selectedVerse === vn ? ' selected' : '';
     return `<div class="bible-verse${hl}${hasNote}${sel}" id="bv-${vn}" onclick="selectVerse(${vn})">
       <span class="verse-num-label">${vn}</span>
       <span class="verse-text">${esc(v.text.trim())}</span>
@@ -1725,156 +1846,60 @@ function renderBibleVerses(verses) {
 }
 
 function selectVerse(vn) {
-  const sel = studyState.selectedVerses;
-  if (sel.has(vn)) {
-    sel.delete(vn);
-    const el = document.getElementById(`bv-${vn}`);
-    if (el) el.classList.remove('selected');
-  } else {
-    sel.add(vn);
-    const el = document.getElementById(`bv-${vn}`);
-    if (el) el.classList.add('selected');
+  if (studyState.selectedVerse === vn) { clearVerseSelection(); return; }
+  if (studyState.selectedVerse !== null) {
+    const prev = document.getElementById(`bv-${studyState.selectedVerse}`);
+    if (prev) prev.classList.remove('selected');
   }
+  studyState.selectedVerse = vn;
+  const el = document.getElementById(`bv-${vn}`);
+  if (el) el.classList.add('selected');
 
   const bar = document.getElementById('verse-action-bar');
   const ref = document.getElementById('verse-action-ref');
-  if (!sel.size) { if (bar) bar.style.display = 'none'; return; }
-
-  const sorted = [...sel].sort((a,b) => a - b);
-  const refText = sorted.length === 1
-    ? `${studyState.book} ${studyState.chapter}:${sorted[0]}`
-    : `${studyState.book} ${studyState.chapter}:${sorted[0]}–${sorted[sorted.length-1]} (${sorted.length} verses)`;
-
   if (bar) bar.style.display = 'flex';
-  if (ref) ref.textContent = refText;
+  if (ref) ref.textContent = `${studyState.book} ${studyState.chapter}:${vn}`;
 }
 
 function clearVerseSelection() {
-  studyState.selectedVerses.forEach(vn => {
-    const el = document.getElementById(`bv-${vn}`);
+  if (studyState.selectedVerse !== null) {
+    const el = document.getElementById(`bv-${studyState.selectedVerse}`);
     if (el) el.classList.remove('selected');
-  });
-  studyState.selectedVerses.clear();
+  }
   studyState.selectedVerse = null;
   const bar = document.getElementById('verse-action-bar');
   if (bar) bar.style.display = 'none';
 }
 
 async function applyHighlight(color) {
-  const sel = studyState.selectedVerses;
-  if (!sel.size) return;
+  const vn = studyState.selectedVerse; if (vn === null) return;
   const uid = currentUser.id;
   const { book, chapter } = studyState;
 
-  await Promise.all([...sel].map(async vn => {
-    if (color === 'none') {
-      await sb.from('verse_highlights').delete()
-        .eq('user_id', uid).eq('book', book).eq('chapter', chapter).eq('verse', vn);
-      delete studyState.highlights[vn];
-    } else {
-      await sb.from('verse_highlights').upsert(
-        { user_id: uid, book, chapter, verse: vn, color },
-        { onConflict: 'user_id,book,chapter,verse' }
-      );
-      studyState.highlights[vn] = color;
-    }
-    const el = document.getElementById(`bv-${vn}`);
-    if (el) {
-      ['hl-yellow','hl-blue','hl-green','hl-pink'].forEach(c => el.classList.remove(c));
-      if (color !== 'none') el.classList.add(`hl-${color}`);
-    }
-  }));
-
-  const count = sel.size;
-  toast(color === 'none'
-    ? `Highlight removed from ${count} verse${count > 1 ? 's' : ''}`
-    : `${count} verse${count > 1 ? 's' : ''} highlighted!`
-  );
-  clearVerseSelection();
+  if (color === 'none') {
+    await sb.from('verse_highlights').delete()
+      .eq('user_id', uid).eq('book', book).eq('chapter', chapter).eq('verse', vn);
+    delete studyState.highlights[vn];
+  } else {
+    await sb.from('verse_highlights').upsert(
+      { user_id: uid, book, chapter, verse: vn, color },
+      { onConflict: 'user_id,book,chapter,verse' }
+    );
+    studyState.highlights[vn] = color;
+  }
+  const el = document.getElementById(`bv-${vn}`);
+  if (el) {
+    ['hl-yellow','hl-blue','hl-green','hl-pink'].forEach(c => el.classList.remove(c));
+    if (color !== 'none') el.classList.add(`hl-${color}`);
+  }
+  toast(color === 'none' ? 'Highlight removed' : 'Highlighted!');
 }
 
 function annotateSelectedVerse() {
-  const sel = studyState.selectedVerses;
-  if (!sel.size) return;
+  const vn = studyState.selectedVerse; if (vn === null) return;
   const { book, chapter } = studyState;
-  const sorted = [...sel].sort((a,b) => a - b);
-  const verse = sorted.length === 1
-    ? String(sorted[0])
-    : `${sorted[0]}-${sorted[sorted.length-1]}`;
   clearVerseSelection();
-  openNewNote({ book, chapter: String(chapter), verse });
-}
-
-async function addVerseToSermon() {
-  const sel = studyState.selectedVerses;
-  if (!sel.size) return;
-  const { book, chapter } = studyState;
-  const sorted = [...sel].sort((a,b) => a - b);
-  const verseRef = sorted.length === 1
-    ? `${book} ${chapter}:${sorted[0]}`
-    : `${book} ${chapter}:${sorted[0]}-${sorted[sorted.length-1]}`;
-
-  // Load sermons if not yet cached
-  if (!cache.sermons.length) {
-    const { data } = await sb.from('sermons').select('*').eq('user_id', currentUser.id).order('date', { ascending: false });
-    cache.sermons = data || [];
-  }
-
-  if (!cache.sermons.length) {
-    showModal('default', 'Add to Sermon', `
-      <p style="font-size:14px;color:var(--text-secondary);">You don't have any sermons yet.</p>
-      <p style="font-size:13px;color:var(--text-secondary);margin-top:8px;">Create a sermon first, then come back to link scriptures to it.</p>
-    `, [
-      { label: 'Go to Sermons', cls: 'btn-primary', action: "closeModal();navigate('sermons')" },
-      { label: 'Cancel', cls: 'btn-ghost', action: 'closeModal()' }
-    ]);
-    return;
-  }
-
-  showModal('default', 'Add to Sermon', `
-    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
-      Adding <strong style="color:var(--primary);">${esc(verseRef)}</strong> to a sermon.
-    </p>
-    <div class="form-group">
-      <label>Choose Sermon</label>
-      <select id="ats-sermon-sel" style="width:100%;">
-        ${cache.sermons.map(s => `<option value="${s.id}">${esc(s.title)}${s.date ? ' — ' + fmtDate(s.date) : ''}</option>`).join('')}
-      </select>
-    </div>
-  `, [
-    { label: 'Cancel', cls: 'btn-ghost', action: 'closeModal()' },
-    { label: 'Add Scripture', cls: 'btn-primary', action: `confirmAddVerseToSermon('${esc(verseRef)}')` }
-  ]);
-}
-
-async function confirmAddVerseToSermon(verseRef) {
-  const sel = document.getElementById('ats-sermon-sel'); if (!sel) return;
-  const sermonId = sel.value;
-  const sermon = cache.sermons.find(s => s.id === sermonId); if (!sermon) return;
-
-  // Append to existing scriptures, avoiding duplicates
-  const existing = (sermon.scriptures || '').split('\n').map(s => s.trim()).filter(Boolean);
-  if (existing.includes(verseRef)) {
-    toast(`${verseRef} is already in that sermon`);
-    closeModal();
-    return;
-  }
-  const updated = [...existing, verseRef].join('\n');
-
-  const { data, error } = await sb.from('sermons')
-    .update({ scriptures: updated })
-    .eq('id', sermonId)
-    .select().single();
-
-  if (error) { toast('Error: ' + error.message); return; }
-
-  // Update cache
-  const i = cache.sermons.findIndex(s => s.id === sermonId);
-  if (i > -1) cache.sermons[i] = data;
-
-  toast(`Added ${verseRef} to "${sermon.title}"`);
-  closeModal();
-  clearVerseSelection();
+  openNewNote({ book, chapter: String(chapter), verse: String(vn) });
 }
 
 async function toggleChapterRead() {
