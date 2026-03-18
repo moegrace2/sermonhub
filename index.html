@@ -1354,7 +1354,7 @@ async function renderSermons(c) {
     <div class="topbar">
       <span class="topbar-title">Sermons</span>
       <div style="margin-left:auto;display:flex;gap:8px;">
-        <button class="btn btn-ghost" onclick="exportSermonsDocx()">⬇ Export Word</button>
+        <button class="btn btn-ghost" onclick="downloadSermonTemplate()">⬇ Template</button>
         <button class="btn btn-primary" onclick="openNewSermon()">+ New Sermon</button>
       </div>
     </div>
@@ -1599,7 +1599,13 @@ function sermonForm(s={}) {
       </div>
 
       <div class="outline-section" style="margin-top:6px;">
-        <div class="outline-section-header">Main Points</div>
+        <div class="outline-section-header" style="display:flex;align-items:center;justify-content:space-between;">
+          <span>Main Points</span>
+          <label style="font-size:11px;font-weight:500;color:var(--primary);cursor:pointer;letter-spacing:normal;text-transform:none;margin:0;padding:3px 10px;border:0.5px solid rgba(24,95,165,0.3);border-radius:var(--radius);background:#fff;">
+            ⬆ Import Word Doc
+            <input type="file" accept=".docx" style="display:none;" onchange="importOutlineFromDocx(this)" />
+          </label>
+        </div>
         <div class="outline-section-body" id="main-points-container">
           ${points.map((p, pi) => renderPointCard(p, pi)).join('')}
         </div>
@@ -1617,6 +1623,149 @@ function sermonForm(s={}) {
     </div>
 
     <div class="form-group"><label>Additional Notes</label><textarea id="s-notes" rows="4" placeholder="Illustrations, stories, additional thoughts…">${esc(plainNotes)}</textarea></div>`;
+}
+
+// ============================================================
+//  WORD DOC OUTLINE IMPORT
+// ============================================================
+async function importOutlineFromDocx(input) {
+  const file = input.files[0]; if (!file) return;
+  toast('Reading document…');
+
+  if (!window.mammoth) {
+    await new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/mammoth@1/mammoth.browser.min.js';
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
+
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer });
+    const lines = result.value.split('\n').map(l => l.trim()).filter(Boolean);
+    const parsed = parseOutlineLines(lines);
+
+    if (!parsed.points.length) {
+      toast('Could not detect outline structure. Check your doc format.');
+      return;
+    }
+    applyParsedOutline(parsed);
+    toast(`Imported ${parsed.points.length} main point${parsed.points.length > 1 ? 's' : ''}!`);
+  } catch (err) {
+    toast('Import failed: ' + err.message);
+  }
+  input.value = '';
+}
+
+function parseOutlineLines(lines) {
+  const points     = [];
+  const scriptures = [];
+  let curPoint = null, curTopic = null;
+
+  const rePoint    = /^([A-Z])\.\s+(.+)$/;
+  const reTopic    = /^(\d+)\.\s+(.+)$/;
+  const reSubtopic = /^([a-z])\.\s+(.+)$/;
+  const reDash     = /^[-—]{2,3}\s+(.+)$/;
+  // Scripture in parentheses inline: (Matthew 19:16-22) or *(Matthew 19:16-22)*
+  const reInlineRef = /\*?\(([^)]+\d+:\d+[^)]*)\)\*?/;
+
+  lines.forEach(line => {
+    // Strip markdown bold/italic markers mammoth may leave
+    const clean = line.replace(/\*\*/g, '').replace(/^\*|\*$/g, '').trim();
+    if (!clean) return;
+
+    let m;
+
+    if ((m = rePoint.exec(clean))) {
+      curPoint = { title: m[2].trim(), topics: [] };
+      curTopic = null;
+      points.push(curPoint);
+
+    } else if ((m = reTopic.exec(clean))) {
+      if (!curPoint) return;
+      let text = m[2].trim();
+      let ref  = '';
+      // Extract inline scripture ref from parens e.g. "Rich Young Ruler (Matthew 19:16-22)"
+      const refMatch = reInlineRef.exec(text);
+      if (refMatch) {
+        ref  = refMatch[1].trim();
+        text = text.replace(refMatch[0], '').trim();
+        if (ref) scriptures.push(ref);
+      }
+      curTopic = { text, ref, subtopics: [] };
+      curPoint.topics.push(curTopic);
+
+    } else if ((m = reDash.exec(clean))) {
+      // --- or — subtopic line (your natural writing style)
+      if (!curTopic) return;
+      const content = m[1].trim();
+      const { ref: sref, remainder } = extractScriptureRef(content);
+      curTopic.subtopics.push({ text: remainder || content, ref: sref || '' });
+      if (sref) scriptures.push(sref);
+
+    } else if ((m = reSubtopic.exec(clean))) {
+      // a. b. c. format (original format also supported)
+      if (!curTopic) return;
+      const content = m[2].trim();
+      const { ref, remainder } = extractScriptureRef(content);
+      if (ref && !remainder) {
+        if (!curTopic.ref) { curTopic.ref = ref; }
+        else curTopic.subtopics.push({ text: '', ref });
+        scriptures.push(ref);
+      } else {
+        curTopic.subtopics.push({ text: remainder || content, ref: ref || '' });
+        if (ref) scriptures.push(ref);
+      }
+    }
+  });
+
+  return { points, scriptures: [...new Set(scriptures)] };
+}
+
+function extractScriptureRef(text) {
+  const books = [
+    'Genesis','Exodus','Leviticus','Numbers','Deuteronomy','Joshua','Judges','Ruth',
+    '1 Samuel','2 Samuel','1 Kings','2 Kings','I Samuel','II Samuel','I Kings','II Kings',
+    '1 Chronicles','2 Chronicles','I Chronicles','II Chronicles',
+    'Ezra','Nehemiah','Esther','Job','Psalms','Psalm','Proverbs','Ecclesiastes',
+    'Song of Solomon','Isaiah','Jeremiah','Lamentations','Ezekiel','Daniel',
+    'Hosea','Joel','Amos','Obadiah','Jonah','Micah','Nahum','Habakkuk',
+    'Zephaniah','Haggai','Zechariah','Malachi',
+    'Matthew','Mark','Luke','John','Acts','Romans',
+    '1 Corinthians','2 Corinthians','I Corinthians','II Corinthians',
+    'Galatians','Ephesians','Philippians','Colossians',
+    '1 Thessalonians','2 Thessalonians','I Thessalonians','II Thessalonians',
+    '1 Timothy','2 Timothy','I Timothy','II Timothy',
+    'Titus','Philemon','Hebrews','James',
+    '1 Peter','2 Peter','I Peter','II Peter',
+    '1 John','2 John','3 John','I John','II John','III John',
+    'Jude','Revelation'
+  ];
+  for (const book of books) {
+    const escaped = book.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp(`^(${escaped}\\s+\\d+:\\d+(?:[,-]\\d+)*)(?:\\s+(.*))?$`, 'i');
+    const m  = re.exec(text);
+    if (m) return { ref: m[1].trim(), remainder: (m[2] || '').trim() };
+  }
+  return { ref: '', remainder: text };
+}
+
+function applyParsedOutline(parsed) {
+  const container = document.getElementById('main-points-container');
+  if (!container) return;
+  container.innerHTML = parsed.points.map((p, pi) => renderPointCard(p, pi)).join('');
+
+  // Append detected scriptures to the scriptures textarea (no duplicates)
+  if (parsed.scriptures.length) {
+    const scrEl = document.getElementById('s-scriptures');
+    if (scrEl) {
+      const existing = scrEl.value.split('\n').map(s => s.trim()).filter(Boolean);
+      const toAdd    = parsed.scriptures.filter(s => !existing.includes(s));
+      if (toAdd.length) scrEl.value = [...existing, ...toAdd].join('\n');
+    }
+  }
 }
 
 // ---- Render a full point card (title + topics + subtopics) ----
@@ -3384,6 +3533,103 @@ async function loadDocx() {
     });
     return true;
   } catch { toast('Could not load Word export library'); return false; }
+}
+
+async function downloadSermonTemplate() {
+  toast('Building template…');
+  if (!await loadDocx()) return;
+
+  const { Document, Packer, Paragraph, TextRun, BorderStyle, AlignmentType, PageBreak } = window.docx;
+
+  const NAVY='1A1A2E', BLUE='185FA5', GRAY='777777', LGRAY='BBBBBB',
+        PURP='8B3A8B', GREEN='2E7D32', AMBER='854F0B';
+
+  const sp  = (b=0,a=0) => ({ spacing:{before:b,after:a} });
+  const bold  = (t,s=22,c=NAVY) => new TextRun({text:t,bold:true,size:s,color:c,font:'Arial'});
+  const light = (t,s=22,c=LGRAY) => new TextRun({text:t,size:s,color:c,italics:true,font:'Arial'});
+  const plain = (t,s=22,c=NAVY)  => new TextRun({text:t,size:s,color:c,font:'Arial'});
+
+  const hdr = (t,c=BLUE) => new Paragraph({
+    children:[new TextRun({text:t,bold:true,size:24,color:c,font:'Arial'})],
+    ...sp(320,120), border:{bottom:{style:BorderStyle.SINGLE,size:8,color:c,space:4}}
+  });
+  const blankLine = (hint='',indent=0) => new Paragraph({
+    children:[hint ? light(hint,22,LGRAY) : plain(' ')],
+    ...sp(60,60),
+    border:{bottom:{style:BorderStyle.SINGLE,size:4,color:'E0E0E0',space:3}},
+    indent: indent ? {left:indent} : undefined
+  });
+  const bls = (n,hint='',indent=0) => Array.from({length:n},(_,i)=>blankLine(i===0?hint:'',indent));
+
+  const doc = new Document({
+    styles:{default:{document:{run:{font:'Arial',size:22,color:NAVY}}}},
+    sections:[{
+      properties:{page:{size:{width:12240,height:15840},margin:{top:1080,right:1080,bottom:1080,left:1080}}},
+      children:[
+        new Paragraph({children:[plain('Ministry Hub  ·  Sermon Template',18,BLUE)],...sp(0,80)}),
+        new Paragraph({children:[light('[Sermon Title]',52,LGRAY)],...sp(0,60),border:{bottom:{style:BorderStyle.SINGLE,size:12,color:NAVY,space:8}}}),
+        new Paragraph({children:[bold('Date:  '),light('[Date]'),plain('          '),bold('Status:  '),light('[Draft / Preached]')],...sp(120,60)}),
+        new Paragraph({children:[bold('YouTube:  '),light('[YouTube link]')],...sp(60,320)}),
+
+        hdr('What, Why & How', NAVY),
+        new Paragraph({children:[bold('WHAT  ',20,BLUE),light('[What is the problem or need?]')],...sp(160,80)}),
+        ...bls(3),
+        new Paragraph({children:[bold('WHY  ',20,PURP),light('[Why does it matter spiritually?]')],...sp(160,80)}),
+        ...bls(3),
+        new Paragraph({children:[bold('HOW  ',20,GREEN),light('[How does Scripture answer it?]')],...sp(160,80)}),
+        ...bls(3),
+
+        hdr('Focus Text', BLUE),
+        new Paragraph({children:[light('[Primary passage — e.g. Matthew 22:36-38]',26,LGRAY)],...sp(80,240),border:{left:{style:BorderStyle.SINGLE,size:14,color:BLUE,space:10}},indent:{left:200}}),
+
+        hdr('Scriptures', BLUE),
+        new Paragraph({children:[plain('One per line:',18,GRAY)],...sp(80,80)}),
+        ...[1,2,3,4,5,6,7,8].map(i=>new Paragraph({children:[plain(`${i}.  `,22,GRAY),light('[Book Chapter:Verse]')],...sp(60,60)})),
+        new Paragraph({children:[plain('')],...sp(200,0)}),
+
+        new Paragraph({children:[new PageBreak()],...sp(0,0)}),
+
+        hdr('Main Points', NAVY),
+        new Paragraph({children:[plain('Format:  A.  Title     1.  Topic (Scripture)     ---  Sub-note',17,GRAY)],...sp(60,200)}),
+
+        ...['A','B','C','D'].flatMap(letter => [
+          new Paragraph({children:[bold(`${letter}.  `,28,BLUE),light('[Main Point Title]',28)],...sp(120,80)}),
+          new Paragraph({children:[plain('    '),bold('1.  ',22,GRAY),light('[Topic] (Book Chapter:Verse)')],...sp(60,40)}),
+          new Paragraph({children:[plain('    '),plain('--- ',22,LGRAY),light('[Sub-note or detail]')],...sp(40,60)}),
+          new Paragraph({children:[plain('    '),bold('2.  ',22,GRAY),light('[Topic] (Book Chapter:Verse)')],...sp(60,40)}),
+          new Paragraph({children:[plain('    '),plain('--- ',22,LGRAY),light('[Sub-note or detail]')],...sp(40,80)}),
+        ]),
+
+        hdr('Conclusion', NAVY),
+        ...bls(5,'[Closing thought, call to action…]'),
+        new Paragraph({children:[plain('')],...sp(200,0)}),
+
+        new Paragraph({children:[new PageBreak()],...sp(0,0)}),
+
+        hdr('Additional Notes', NAVY),
+        ...bls(12,'[Illustrations, stories, personal reflections…]'),
+        new Paragraph({children:[plain('')],...sp(200,0)}),
+
+        hdr('Key Quotes', AMBER),
+        ...[1,2,3,4].map(i=>new Paragraph({
+          children:[plain(`${i}.  `,22,GRAY),light('"[Key quote or memorable line]"')],
+          border:{left:{style:BorderStyle.SINGLE,size:12,color:'EF9F27',space:8}},
+          ...sp(80,80),indent:{left:80}
+        })),
+
+        new Paragraph({
+          children:[plain('Ministry Hub  ·  Upload this file to import your outline',16,LGRAY)],
+          alignment:AlignmentType.CENTER,
+          spacing:{before:480},
+          border:{top:{style:BorderStyle.SINGLE,size:4,color:'EEEEEE',space:6}}
+        }),
+      ]
+    }]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  downloadBlob(blob, 'Sermon_Template.docx');
+  toast('Template downloaded!');
 }
 
 async function exportSermonsDocx() {
