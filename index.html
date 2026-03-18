@@ -1354,7 +1354,7 @@ async function renderSermons(c) {
     <div class="topbar">
       <span class="topbar-title">Sermons</span>
       <div style="margin-left:auto;display:flex;gap:8px;">
-        <button class="btn btn-ghost" onclick="downloadSermonTemplate()">⬇ Template</button>
+        <button class="btn btn-ghost" onclick="exportSermonsDocx()">⬇ Export Word</button>
         <button class="btn btn-primary" onclick="openNewSermon()">+ New Sermon</button>
       </div>
     </div>
@@ -1508,6 +1508,7 @@ function openSermonDetail(id) {
 }
 
 function openNewSermon() {
+  sermonFormDirty = false;
   const today = new Date().toISOString().split('T')[0];
   showModal('large', 'New Sermon', sermonForm(), [
     { label: 'Cancel', cls: 'btn-ghost', action: 'closeModal()' },
@@ -1517,8 +1518,9 @@ function openNewSermon() {
 }
 
 function openEditSermon(id) {
+  sermonFormDirty = false;
   const s = cache.sermons.find(x => x.id === id); if (!s) return;
-  closeModal();
+  closeModal(true);
   setTimeout(() => {
     showModal('large', 'Edit Sermon', sermonForm(s), [
       { label: 'Cancel', cls: 'btn-ghost', action: 'closeModal()' },
@@ -1911,7 +1913,7 @@ async function saveSermon() {
   const { data, error } = await sb.from('sermons').insert(sermonPayload()).select().single();
   if (error) { toast('Error: ' + error.message); return; }
   cache.sermons.unshift(data);
-  toast('Sermon saved!'); closeModal(); filterSermons();
+  toast('Sermon saved!'); sermonFormDirty=false; closeModal(true); filterSermons();
 }
 
 async function updateSermon(id) {
@@ -1921,7 +1923,7 @@ async function updateSermon(id) {
   if (error) { toast('Error: ' + error.message); return; }
   const i = cache.sermons.findIndex(x => x.id === id);
   if (i > -1) cache.sermons[i] = data;
-  toast('Updated!'); closeModal(); filterSermons();
+  toast('Updated!'); sermonFormDirty=false; closeModal(true); filterSermons();
 }
 
 async function delSermon(id) {
@@ -1929,7 +1931,7 @@ async function delSermon(id) {
   const { error } = await sb.from('sermons').delete().eq('id', id);
   if (error) { toast('Error: ' + error.message); return; }
   cache.sermons = cache.sermons.filter(x => x.id !== id);
-  toast('Sermon deleted'); closeModal(); filterSermons();
+  toast('Sermon deleted'); sermonFormDirty=false; closeModal(true); filterSermons();
 }
 
 function sermonPayload() {
@@ -3057,12 +3059,67 @@ function showModal(size, title, bodyHTML, buttons) {
   document.getElementById('modal-overlay').classList.add('active');
 }
 
-function closeModal() {
+let sermonFormDirty = false;
+
+// Listen for any input/change inside the modal — if sermon form is open, mark dirty
+document.addEventListener('input',  e => { if (e.target.closest('#modal-container') && document.getElementById('s-title')) sermonFormDirty = true; });
+document.addEventListener('change', e => { if (e.target.closest('#modal-container') && document.getElementById('s-title')) sermonFormDirty = true; });
+
+function closeModal(force = false) {
+  if (!force && sermonFormDirty && document.getElementById('s-title')) {
+    showUnsavedPrompt();
+    return;
+  }
+  sermonFormDirty = false;
   document.getElementById('modal-overlay').classList.remove('active');
 }
 
 function handleOverlayClick(e) {
   if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function showUnsavedPrompt() {
+  if (document.getElementById('unsaved-prompt')) return;
+  const prompt = document.createElement('div');
+  prompt.id = 'unsaved-prompt';
+  prompt.style.cssText = `
+    position:fixed;inset:0;background:rgba(10,14,30,0.65);
+    display:flex;align-items:center;justify-content:center;
+    z-index:300;padding:20px;
+  `;
+  prompt.innerHTML = `
+    <div style="background:#fff;border-radius:var(--radius-lg);border:0.5px solid var(--border-strong);
+      padding:24px 28px;max-width:340px;width:100%;">
+      <div style="font-family:var(--font-serif);font-size:16px;font-weight:500;
+        color:var(--text-primary);margin-bottom:8px;">Unsaved changes</div>
+      <p style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:20px;">
+        You have unsaved changes to this sermon. What would you like to do?
+      </p>
+      <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;">
+        <button class="btn btn-danger" style="margin-right:auto;" onclick="discardSermonChanges()">Discard</button>
+        <button class="btn btn-ghost" onclick="dismissUnsavedPrompt()">Keep Editing</button>
+        <button class="btn btn-primary" onclick="saveFromPrompt()">Save</button>
+      </div>
+    </div>`;
+  document.body.appendChild(prompt);
+}
+
+function dismissUnsavedPrompt() {
+  const p = document.getElementById('unsaved-prompt');
+  if (p) p.remove();
+}
+
+function discardSermonChanges() {
+  sermonFormDirty = false;
+  dismissUnsavedPrompt();
+  document.getElementById('modal-overlay').classList.remove('active');
+}
+
+function saveFromPrompt() {
+  dismissUnsavedPrompt();
+  const saveBtn = [...document.querySelectorAll('.modal-footer .btn-primary')]
+    .find(b => b.textContent.includes('Save'));
+  if (saveBtn) saveBtn.click();
 }
 
 // ============================================================
@@ -3533,103 +3590,6 @@ async function loadDocx() {
     });
     return true;
   } catch { toast('Could not load Word export library'); return false; }
-}
-
-async function downloadSermonTemplate() {
-  toast('Building template…');
-  if (!await loadDocx()) return;
-
-  const { Document, Packer, Paragraph, TextRun, BorderStyle, AlignmentType, PageBreak } = window.docx;
-
-  const NAVY='1A1A2E', BLUE='185FA5', GRAY='777777', LGRAY='BBBBBB',
-        PURP='8B3A8B', GREEN='2E7D32', AMBER='854F0B';
-
-  const sp  = (b=0,a=0) => ({ spacing:{before:b,after:a} });
-  const bold  = (t,s=22,c=NAVY) => new TextRun({text:t,bold:true,size:s,color:c,font:'Arial'});
-  const light = (t,s=22,c=LGRAY) => new TextRun({text:t,size:s,color:c,italics:true,font:'Arial'});
-  const plain = (t,s=22,c=NAVY)  => new TextRun({text:t,size:s,color:c,font:'Arial'});
-
-  const hdr = (t,c=BLUE) => new Paragraph({
-    children:[new TextRun({text:t,bold:true,size:24,color:c,font:'Arial'})],
-    ...sp(320,120), border:{bottom:{style:BorderStyle.SINGLE,size:8,color:c,space:4}}
-  });
-  const blankLine = (hint='',indent=0) => new Paragraph({
-    children:[hint ? light(hint,22,LGRAY) : plain(' ')],
-    ...sp(60,60),
-    border:{bottom:{style:BorderStyle.SINGLE,size:4,color:'E0E0E0',space:3}},
-    indent: indent ? {left:indent} : undefined
-  });
-  const bls = (n,hint='',indent=0) => Array.from({length:n},(_,i)=>blankLine(i===0?hint:'',indent));
-
-  const doc = new Document({
-    styles:{default:{document:{run:{font:'Arial',size:22,color:NAVY}}}},
-    sections:[{
-      properties:{page:{size:{width:12240,height:15840},margin:{top:1080,right:1080,bottom:1080,left:1080}}},
-      children:[
-        new Paragraph({children:[plain('Ministry Hub  ·  Sermon Template',18,BLUE)],...sp(0,80)}),
-        new Paragraph({children:[light('[Sermon Title]',52,LGRAY)],...sp(0,60),border:{bottom:{style:BorderStyle.SINGLE,size:12,color:NAVY,space:8}}}),
-        new Paragraph({children:[bold('Date:  '),light('[Date]'),plain('          '),bold('Status:  '),light('[Draft / Preached]')],...sp(120,60)}),
-        new Paragraph({children:[bold('YouTube:  '),light('[YouTube link]')],...sp(60,320)}),
-
-        hdr('What, Why & How', NAVY),
-        new Paragraph({children:[bold('WHAT  ',20,BLUE),light('[What is the problem or need?]')],...sp(160,80)}),
-        ...bls(3),
-        new Paragraph({children:[bold('WHY  ',20,PURP),light('[Why does it matter spiritually?]')],...sp(160,80)}),
-        ...bls(3),
-        new Paragraph({children:[bold('HOW  ',20,GREEN),light('[How does Scripture answer it?]')],...sp(160,80)}),
-        ...bls(3),
-
-        hdr('Focus Text', BLUE),
-        new Paragraph({children:[light('[Primary passage — e.g. Matthew 22:36-38]',26,LGRAY)],...sp(80,240),border:{left:{style:BorderStyle.SINGLE,size:14,color:BLUE,space:10}},indent:{left:200}}),
-
-        hdr('Scriptures', BLUE),
-        new Paragraph({children:[plain('One per line:',18,GRAY)],...sp(80,80)}),
-        ...[1,2,3,4,5,6,7,8].map(i=>new Paragraph({children:[plain(`${i}.  `,22,GRAY),light('[Book Chapter:Verse]')],...sp(60,60)})),
-        new Paragraph({children:[plain('')],...sp(200,0)}),
-
-        new Paragraph({children:[new PageBreak()],...sp(0,0)}),
-
-        hdr('Main Points', NAVY),
-        new Paragraph({children:[plain('Format:  A.  Title     1.  Topic (Scripture)     ---  Sub-note',17,GRAY)],...sp(60,200)}),
-
-        ...['A','B','C','D'].flatMap(letter => [
-          new Paragraph({children:[bold(`${letter}.  `,28,BLUE),light('[Main Point Title]',28)],...sp(120,80)}),
-          new Paragraph({children:[plain('    '),bold('1.  ',22,GRAY),light('[Topic] (Book Chapter:Verse)')],...sp(60,40)}),
-          new Paragraph({children:[plain('    '),plain('--- ',22,LGRAY),light('[Sub-note or detail]')],...sp(40,60)}),
-          new Paragraph({children:[plain('    '),bold('2.  ',22,GRAY),light('[Topic] (Book Chapter:Verse)')],...sp(60,40)}),
-          new Paragraph({children:[plain('    '),plain('--- ',22,LGRAY),light('[Sub-note or detail]')],...sp(40,80)}),
-        ]),
-
-        hdr('Conclusion', NAVY),
-        ...bls(5,'[Closing thought, call to action…]'),
-        new Paragraph({children:[plain('')],...sp(200,0)}),
-
-        new Paragraph({children:[new PageBreak()],...sp(0,0)}),
-
-        hdr('Additional Notes', NAVY),
-        ...bls(12,'[Illustrations, stories, personal reflections…]'),
-        new Paragraph({children:[plain('')],...sp(200,0)}),
-
-        hdr('Key Quotes', AMBER),
-        ...[1,2,3,4].map(i=>new Paragraph({
-          children:[plain(`${i}.  `,22,GRAY),light('"[Key quote or memorable line]"')],
-          border:{left:{style:BorderStyle.SINGLE,size:12,color:'EF9F27',space:8}},
-          ...sp(80,80),indent:{left:80}
-        })),
-
-        new Paragraph({
-          children:[plain('Ministry Hub  ·  Upload this file to import your outline',16,LGRAY)],
-          alignment:AlignmentType.CENTER,
-          spacing:{before:480},
-          border:{top:{style:BorderStyle.SINGLE,size:4,color:'EEEEEE',space:6}}
-        }),
-      ]
-    }]
-  });
-
-  const blob = await Packer.toBlob(doc);
-  downloadBlob(blob, 'Sermon_Template.docx');
-  toast('Template downloaded!');
 }
 
 async function exportSermonsDocx() {
