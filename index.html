@@ -1357,7 +1357,7 @@ async function renderSermons(c) {
     <div class="topbar">
       <span class="topbar-title">Sermons</span>
       <div style="margin-left:auto;display:flex;gap:8px;">
-        <button class="btn btn-ghost" onclick="exportSermonsDocx()">⬇ Export Word</button>
+        <button class="btn btn-ghost" onclick="exportSermonTemplate()">⬇ Sermon Template</button>
         <button class="btn btn-primary" onclick="openNewSermon()">+ New Sermon</button>
       </div>
     </div>
@@ -3612,6 +3612,85 @@ async function exportSingleSermonDocx(id) {
   const blob = await buildDocxBlob([s], s.title);
   downloadBlob(blob, `${s.title.replace(/[^a-z0-9]/gi,'_')}.docx`);
   toast('Downloaded!');
+}
+
+async function exportSermonTemplate() {
+  toast('Building sermon template…');
+  if (!await loadDocx()) return;
+  const { Document, Packer, Paragraph, TextRun, BorderStyle } = window.docx;
+
+  const sectionLabel = text => new Paragraph({
+    children: [new TextRun({ text, size: 18, bold: true, color: '888888', allCaps: true })],
+    spacing: { before: 320, after: 100 },
+    border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: 'DDDDDD', space: 4 } }
+  });
+
+  const blankLine = (indent = 0) => new Paragraph({
+    children: [new TextRun({ text: '_'.repeat(60), color: 'CCCCCC', size: 22 })],
+    spacing: { after: 120 }, indent: { left: indent }
+  });
+
+  const children = [
+    // Title
+    new Paragraph({
+      children: [new TextRun({ text: 'Sermon Title', size: 52, bold: true, font: 'Georgia', color: 'CCCCCC' })],
+      spacing: { after: 360 },
+      border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: '1A1A2E', space: 6 } }
+    }),
+
+    // Date / Speaker
+    new Paragraph({
+      children: [new TextRun({ text: 'Date: ', size: 22, bold: true }), new TextRun({ text: '___________________     ', size: 22 }),
+                 new TextRun({ text: 'Speaker: ', size: 22, bold: true }), new TextRun({ text: '___________________', size: 22 })],
+      spacing: { after: 200 }
+    }),
+
+    // WWH
+    sectionLabel('What, Why & How'),
+    new Paragraph({ children: [new TextRun({ text: 'WHAT  ', size: 18, bold: true, color: '185FA5' })], spacing: { after: 40 } }),
+    blankLine(360),
+    new Paragraph({ children: [new TextRun({ text: 'WHY  ', size: 18, bold: true, color: '8B3A8B' })], spacing: { after: 40 } }),
+    blankLine(360),
+    new Paragraph({ children: [new TextRun({ text: 'HOW  ', size: 18, bold: true, color: '2E7D32' })], spacing: { after: 40 } }),
+    blankLine(360),
+
+    // Focus Text
+    sectionLabel('Focus Text'),
+    blankLine(360), blankLine(360),
+
+    // Scriptures
+    sectionLabel('Scriptures'),
+    blankLine(360), blankLine(360), blankLine(360),
+
+    // Outline
+    sectionLabel('Main Points'),
+    new Paragraph({ children: [new TextRun({ text: 'A.  ', size: 28, bold: true, color: '185FA5' })], spacing: { before: 240, after: 80 } }),
+    blankLine(360), blankLine(360),
+    new Paragraph({ children: [new TextRun({ text: 'B.  ', size: 28, bold: true, color: '185FA5' })], spacing: { before: 240, after: 80 } }),
+    blankLine(360), blankLine(360),
+    new Paragraph({ children: [new TextRun({ text: 'C.  ', size: 28, bold: true, color: '185FA5' })], spacing: { before: 240, after: 80 } }),
+    blankLine(360), blankLine(360),
+
+    // Conclusion
+    sectionLabel('Conclusion'),
+    blankLine(), blankLine(),
+
+    // Notes
+    sectionLabel('Notes'),
+    blankLine(), blankLine(), blankLine(),
+  ];
+
+  const doc = new Document({
+    styles: { default: { document: { run: { font: 'Arial', size: 22 } } } },
+    sections: [{
+      properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 1080, right: 1080, bottom: 1080, left: 1080 } } },
+      children
+    }]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  downloadBlob(blob, 'sermon-template.docx');
+  toast('Downloaded sermon-template.docx!');
 }
 
 function downloadBlob(blob, filename) {
