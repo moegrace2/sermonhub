@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ministry Hub</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Ministry Hub">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Lora:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="icon" href="data:,">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
     :root {
@@ -1838,10 +1840,20 @@ function renderSubtopicRow(st, pi, ti, si) {
 function addMainPoint() {
   const container = document.getElementById('main-points-container');
   if (!container) return;
+  
   const pi = container.querySelectorAll('.mp-card').length;
   const div = document.createElement('div');
+  
+  // Create the HTML for the new card
   div.innerHTML = renderPointCard({ title:'', topics:[{text:'',ref:'',subtopics:[]}] }, pi);
-  container.insertBefore(div.firstElementChild, container.nextSibling);
+  
+  // FIX: Use appendChild to add it to the end of the container safely
+  container.appendChild(div.firstElementChild);
+  
+  // If you have a specific "Add Point" button inside the container 
+  // and want to keep it at the bottom, use this instead:
+  // const btn = document.getElementById('add-point-btn');
+  // container.insertBefore(div.firstElementChild, btn);
 }
 
 function removeMainPoint(pi) {
