@@ -1018,6 +1018,16 @@
       .card { padding: 10px 12px; }
       .auth-card { padding: 24px 16px; }
     }
+	
+	/* ---- ADD THIS CSS ---- */
+	.btn-move {
+	  background: transparent; border: none; color: var(--text-secondary);
+	  font-size: 11px; cursor: pointer; padding: 2px 4px; border-radius: 4px;
+	  line-height: 1; opacity: 0.5; transition: opacity 0.15s, background 0.15s;
+	}
+	.btn-move:hover { background: var(--border); color: var(--text-primary); opacity: 1; }
+	.move-group { display: flex; gap: 2px; align-items: center; margin-right: 6px; }
+
   </style>
 </head>
 <body>
@@ -1782,6 +1792,10 @@ function renderPointCard(p, pi) {
   return `
     <div class="mp-card" id="mp-card-${pi}">
       <div class="mp-card-header">
+        <div class="move-group">
+          <button type="button" class="btn-move" onclick="moveOutlineItem(this, 'up')" title="Move Up">▲</button>
+          <button type="button" class="btn-move" onclick="moveOutlineItem(this, 'down')" title="Move Down">▼</button>
+        </div>
         <span class="mp-letter">${letter}.</span>
         <input type="text" id="mp-title-${pi}" value="${esc(p.title||'')}" placeholder="Main point title…" />
         ${pi > 0 ? `<button type="button" class="mp-remove-btn" onclick="removeMainPoint(${pi})">×</button>` : ''}
@@ -1809,7 +1823,13 @@ function renderTopicRow(t, pi, ti) {
             ${t.ref ? `<button type="button" class="topic-ref-btn" onclick="previewRef('mp-t-ref-${pi}-${ti}')">📖 Preview</button>` : `<button type="button" class="topic-ref-btn" onclick="previewRef('mp-t-ref-${pi}-${ti}')">📖 Preview</button>`}
           </div>
         </div>
-        <button type="button" class="topic-remove-btn" onclick="removeTopic(${pi},${ti})">×</button>
+        <div style="display:flex; flex-direction:column; align-items:center; margin-top:4px;">
+          <button type="button" class="topic-remove-btn" onclick="removeTopic(${pi},${ti})">×</button>
+          <div class="move-group" style="margin:4px 0 0 0;">
+            <button type="button" class="btn-move" onclick="moveOutlineItem(this, 'up')">▲</button>
+            <button type="button" class="btn-move" onclick="moveOutlineItem(this, 'down')">▼</button>
+          </div>
+        </div>
       </div>
       <div class="subtopics-container" id="mp-subtopics-${pi}-${ti}">
         ${subtopics.map((st, si) => renderSubtopicRow(st, pi, ti, si)).join('')}
@@ -1832,7 +1852,13 @@ function renderSubtopicRow(st, pi, ti, si) {
           <button type="button" class="topic-ref-btn" onclick="previewRef('mp-s-ref-${pi}-${ti}-${si}')">📖 Preview</button>
         </div>
       </div>
-      <button type="button" class="subtopic-remove-btn" onclick="removeSubtopic(${pi},${ti},${si})">×</button>
+      <div style="display:flex; align-items:center; gap:4px; margin-top:4px;">
+        <div class="move-group" style="margin:0;">
+          <button type="button" class="btn-move" onclick="moveOutlineItem(this, 'up')">▲</button>
+          <button type="button" class="btn-move" onclick="moveOutlineItem(this, 'down')">▼</button>
+        </div>
+        <button type="button" class="subtopic-remove-btn" onclick="removeSubtopic(${pi},${ti},${si})">×</button>
+      </div>
     </div>`;
 }
 
@@ -1856,21 +1882,112 @@ function addMainPoint() {
   // container.insertBefore(div.firstElementChild, btn);
 }
 
+// ---- REMOVE HELPER FUNCTIONS ----
 function removeMainPoint(pi) {
   const container = document.getElementById('main-points-container');
   const card = document.getElementById(`mp-card-${pi}`);
   if (card && container.querySelectorAll('.mp-card').length > 1) {
     card.remove();
-    rebuildPointLabels();
+    rebuildAllOutlineIndexes();
   }
 }
 
-function rebuildPointLabels() {
-  document.querySelectorAll('#main-points-container .mp-card').forEach((card, idx) => {
-    card.id = `mp-card-${idx}`;
-    card.querySelector('.mp-letter').textContent = String.fromCharCode(65 + idx) + '.';
-    const titleInput = card.querySelector('input[type="text"]');
-    if (titleInput) titleInput.id = `mp-title-${idx}`;
+function removeTopic(pi, ti) {
+  const row = document.getElementById(`mp-topic-${pi}-${ti}`);
+  const container = document.getElementById(`mp-topics-${pi}`);
+  if (row && container && container.querySelectorAll('.topic-row').length > 1) {
+    row.remove();
+    rebuildAllOutlineIndexes();
+  }
+}
+
+function removeSubtopic(pi, ti, si) {
+  const row = document.getElementById(`mp-sub-${pi}-${ti}-${si}`);
+  if (row) {
+    row.remove();
+    rebuildAllOutlineIndexes();
+  }
+}
+
+// ---- MOVE LOGIC ----
+function moveOutlineItem(btn, direction) {
+  const item = btn.closest('.mp-card, .topic-row, .subtopic-row');
+  if (!item) return;
+  const parent = item.parentNode;
+  
+  if (direction === 'up') {
+    const prev = item.previousElementSibling;
+    if (prev) parent.insertBefore(item, prev);
+  } else if (direction === 'down') {
+    const next = item.nextElementSibling;
+    if (next) parent.insertBefore(next, item);
+  }
+  // After moving the HTML element, re-sync all the IDs and numbers
+  rebuildAllOutlineIndexes();
+}
+
+// ---- MASTER REBUILDER (Keeps data in sync with UI) ----
+function rebuildAllOutlineIndexes() {
+  const container = document.getElementById('main-points-container');
+  if (!container) return;
+
+  container.querySelectorAll('.mp-card').forEach((card, pi) => {
+    card.id = `mp-card-${pi}`;
+    const letterEl = card.querySelector('.mp-letter');
+    if (letterEl) letterEl.textContent = String.fromCharCode(65 + pi) + '.';
+    
+    const titleInput = card.querySelector('input[id^="mp-title-"]');
+    if (titleInput) titleInput.id = `mp-title-${pi}`;
+    
+    const removeMpBtn = card.querySelector('.mp-remove-btn');
+    if (removeMpBtn) removeMpBtn.setAttribute('onclick', `removeMainPoint(${pi})`);
+    
+    const topicsContainer = card.querySelector('[id^="mp-topics-"]');
+    if (topicsContainer) topicsContainer.id = `mp-topics-${pi}`;
+    
+    const addTopicBtn = card.querySelector('.add-topic-btn');
+    if (addTopicBtn) addTopicBtn.setAttribute('onclick', `addTopic(${pi})`);
+
+    card.querySelectorAll('.topic-row').forEach((topicRow, ti) => {
+      topicRow.id = `mp-topic-${pi}-${ti}`;
+      
+      const topicNum = topicRow.querySelector('.topic-num');
+      if (topicNum) topicNum.textContent = `${ti + 1}.`;
+      
+      const tTextInput = topicRow.querySelector('input[id^="mp-t-text-"]');
+      if (tTextInput) tTextInput.id = `mp-t-text-${pi}-${ti}`;
+      
+      const tRefInput = topicRow.querySelector('input[id^="mp-t-ref-"]');
+      if (tRefInput) tRefInput.id = `mp-t-ref-${pi}-${ti}`;
+      
+      const tRefBtn = topicRow.querySelector('.topic-ref-btn');
+      if (tRefBtn) tRefBtn.setAttribute('onclick', `previewRef('mp-t-ref-${pi}-${ti}')`);
+      
+      const removeTopicBtn = topicRow.querySelector('.topic-remove-btn');
+      if (removeTopicBtn) removeTopicBtn.setAttribute('onclick', `removeTopic(${pi},${ti})`);
+
+      const subContainer = topicRow.querySelector('.subtopics-container');
+      if (subContainer) subContainer.id = `mp-subtopics-${pi}-${ti}`;
+      
+      const addSubBtn = topicRow.querySelector('.add-subtopic-btn');
+      if (addSubBtn) addSubBtn.setAttribute('onclick', `addSubtopic(${pi},${ti})`);
+
+      topicRow.querySelectorAll('.subtopic-row').forEach((subRow, si) => {
+        subRow.id = `mp-sub-${pi}-${ti}-${si}`;
+        
+        const sTextInput = subRow.querySelector('input[id^="mp-s-text-"]');
+        if (sTextInput) sTextInput.id = `mp-s-text-${pi}-${ti}-${si}`;
+        
+        const sRefInput = subRow.querySelector('input[id^="mp-s-ref-"]');
+        if (sRefInput) sRefInput.id = `mp-s-ref-${pi}-${ti}-${si}`;
+        
+        const sRefBtn = subRow.querySelector('.topic-ref-btn');
+        if (sRefBtn) sRefBtn.setAttribute('onclick', `previewRef('mp-s-ref-${pi}-${ti}-${si}')`);
+        
+        const removeSubBtn = subRow.querySelector('.subtopic-remove-btn');
+        if (removeSubBtn) removeSubBtn.setAttribute('onclick', `removeSubtopic(${pi},${ti},${si})`);
+      });
+    });
   });
 }
 
